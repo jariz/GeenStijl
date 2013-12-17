@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--suppress AndroidLintUselessParent -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent" android:background="#e5e5e5">
+
+    <ListView
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/show"
+            style="@style/Theme.Geenstijl.CardHolder"
+            android:visibility="gone"/>
+
+    <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/error"
+            android:visibility="gone">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_gravity="center">
+            <com.devspark.robototextview.widget.RobotoTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="44sp"
+                    app:typeface="roboto_thin_italic" android:textColor="#e74c3c" android:layout_gravity="center"
+                    android:id="@+id/error_title"/>
+            <com.devspark.robototextview.widget.RobotoTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/error_desc1"
+                    app:typeface="roboto_condensed_regular"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:visibility="visible"
+            android:id="@+id/loading"
+            android:background="#e5e5e5">
+
+        <ProgressBar
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar"
+                android:layout_gravity="center"/>
+    </FrameLayout>
+
+</FrameLayout>
