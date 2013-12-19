@@ -21,7 +21,9 @@ import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Adapters.ArtikelAdapter;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.Options;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -47,16 +49,41 @@ public class Blog extends Base {
             SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
             ((ViewGroup.MarginLayoutParams)params).topMargin = config.getPixelInsetTop(true);
         }
-        // As we're using a ListFragment we create a PullToRefreshLayout manually
-        PullToRefreshLayout mPullToRefreshLayout = new PullToRefreshLayout(viewGroup.getContext());
 
-        // We can now setup the PullToRefreshLayout
+        // Now find the PullToRefreshLayout to setup
+        final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+
+        // Now setup the PullToRefreshLayout
         ActionBarPullToRefresh.from(this)
-                // We need to insert the PullToRefreshLayout into the Fragment's ViewGroup
-                .insertLayoutInto((ViewGroup)findViewById(R.id.show))
-                        // Here we mark just the ListView and it's Empty View as pullable
-                .theseChildrenArePullable(android.R.id.list, android.R.id.empty)
-//                .listener(this)
+                .allChildrenArePullable()
+                .listener(new OnRefreshListener() {
+                    public void onRefreshStarted(View view) {
+                        new Thread(new Runnable() {
+                            public void run() {
+                                try {
+                                    final Artikel[] artikelen = API.getArticles();
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            ListView show = (ListView)findViewById(R.id.show);
+                                            show.setScrollingCacheEnabled(false);
+                                            show.setAdapter(new ArtikelAdapter(thiz, 0, artikelen));
+                                            mPullToRefreshLayout.setRefreshComplete();
+                                        }
+                                    });
+
+                                } catch (Exception e) {
+                                    Log.w(TAG, "Catched exception, going to error state.");
+                                    e.printStackTrace();
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            switchState(STATE_ERROR);
+                                        }
+                                    });
+                                }
+                            }
+                        }).start();
+                    }
+                })
                 .setup(mPullToRefreshLayout);
 
         new Thread(new Runnable() {

@@ -81,6 +81,7 @@ public class API {
             artikel_el.select("img").remove();
             artikel_el.select("footer").remove();
             artikel_el.select("a.more").remove();
+            artikel_el.select("script").remove();
 
             //inhoud
             artikel.inhoud = artikel_el.html();
