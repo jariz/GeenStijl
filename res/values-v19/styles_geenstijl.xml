@@ -16,6 +16,7 @@
         <item name="android:windowTranslucentStatus">true</item>
         <!--<item name="android:fitsSystemWindows">true</item>-->
         <!--<item name="android:clipToPadding">false</item>-->
+        <item name="android:fadingEdge">none</item>
 
         <!-- Light.DarkActionBar specific -->
         <item name="android:actionBarWidgetTheme">@style/Theme.Geenstijl.Widget</item>

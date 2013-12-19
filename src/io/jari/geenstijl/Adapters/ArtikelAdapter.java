@@ -40,8 +40,12 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
 
         ((TextView) item.findViewById(R.id.title)).setText(artikel.titel);
         TextView desc = (TextView) item.findViewById(R.id.desc);
+        TextView footer = (TextView) item.findViewById(R.id.footer);
+
         desc.setText(Html.fromHtml(artikel.inhoud));
         desc.setMovementMethod(LinkMovementMethod.getInstance());
+
+        footer.setText(String.format("%s | %s | %s reacties", artikel.auteur, artikel.datum.toString(), artikel.reacties)); //todo icons?
 
         ImageView big = (ImageView)item.findViewById(R.id.big_image);
         ImageView small = (ImageView)item.findViewById(R.id.small_image);
@@ -55,7 +59,7 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
                 big.setVisibility(View.VISIBLE);
                 small.setVisibility(View.GONE);
                 big.setImageDrawable(artikel.plaatje);
-//                big.setMinimumHeight(artikel.plaatje.getBounds().height());
+                big.setMinimumHeight(artikel.plaatje.getBounds().height() * 5); //todo find better way
             }
         } else {
             big.setVisibility(View.GONE);
