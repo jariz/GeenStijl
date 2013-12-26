@@ -3,7 +3,8 @@
           package="io.jari.geenstijl">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-sdk android:minSdkVersion="7"/> <!-- 2.1 -->
+    <uses-sdk android:minSdkVersion="7"/>
+    <!-- 2.1 -->
     <application
             android:icon="@drawable/icon"
             android:label="@string/app_name"
@@ -12,7 +13,22 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http"
+                      android:host="www.geenstijl.nl"
+                      android:path="/"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".Article">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http"
+                      android:host="www.geenstijl.nl"
+                      android:pathPrefix="/mt/archieven/"/>
             </intent-filter>
         </activity>
     </application>

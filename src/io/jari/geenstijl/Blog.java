@@ -30,9 +30,6 @@ import java.text.ParseException;
 import java.util.Random;
 
 public class Blog extends Base {
-    int STATE_ERROR = 1;
-    int STATE_LOADING = 2;
-    int STATE_SHOW = 3;
     String TAG = "GS.MAIN";
 
     public void onCreate(Bundle savedInstanceState) {
@@ -61,7 +58,7 @@ public class Blog extends Base {
                         new Thread(new Runnable() {
                             public void run() {
                                 try {
-                                    final Artikel[] artikelen = API.getArticles();
+                                    final Artikel[] artikelen = API.getArticles(true, getApplicationContext());
                                     runOnUiThread(new Runnable() {
                                         public void run() {
                                             ListView show = (ListView)findViewById(R.id.show);
@@ -89,7 +86,7 @@ public class Blog extends Base {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    final Artikel[] artikelen = API.getArticles();
+                    final Artikel[] artikelen = API.getArticles(false, getApplicationContext());
                     runOnUiThread(new Runnable() {
                         public void run() {
                             ListView show = (ListView)findViewById(R.id.show);
@@ -113,63 +110,6 @@ public class Blog extends Base {
             }
         }).start();
 
-    }
-
-    void switchState(int state) {
-        final View error = findViewById(R.id.error);
-        final View show = findViewById(R.id.show);
-        final View loading = findViewById(R.id.loading);
-
-        switch (state) {
-            case 1: // STATE_ERROR
-
-                TextView title = (TextView)error.findViewById(R.id.error_title);
-                switch(new Random().nextInt(2)) {
-                    case 0:
-                        title.setText(R.string.error_title1);
-                        break;
-                    case 1:
-                        title.setText(R.string.error_title2);
-                        break;
-                    case 2:
-                        title.setText(R.string.error_title3);
-                        break;
-                }
-
-                //todo find a nicer way for the identical blocks down below
-
-                Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
-                anim.setDuration(500);
-                anim.setAnimationListener(new Animation.AnimationListener() {
-                    public void onAnimationStart(Animation animation) {}
-                    public void onAnimationEnd(Animation animation) {
-                        show.setVisibility(View.GONE);
-                        loading.setVisibility(View.GONE);
-                        error.setVisibility(View.VISIBLE);
-                    }
-                    public void onAnimationRepeat(Animation animation) {}
-                });
-                loading.startAnimation(anim);
-
-
-                break;
-            case 3: // STATE_ERROR
-                anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
-                anim.setDuration(500);
-                error.setVisibility(View.GONE);
-                anim.setAnimationListener(new Animation.AnimationListener() {
-                    public void onAnimationStart(Animation animation) {}
-                    public void onAnimationEnd(Animation animation) {
-                        show.setVisibility(View.VISIBLE);
-                        loading.setVisibility(View.GONE);
-                    }
-                    public void onAnimationRepeat(Animation animation) {}
-                });
-                loading.startAnimation(anim);
-
-
-                break;
-        }
     }
 }
 

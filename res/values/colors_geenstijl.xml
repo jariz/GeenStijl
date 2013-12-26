@@ -19,4 +19,5 @@
 
 <resources>
     <color name="pressed_geenstijl">#CC33B5E5</color>
+    <color name="geenstijl">#E94C88</color>
 </resources>

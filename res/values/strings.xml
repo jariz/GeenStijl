@@ -6,4 +6,8 @@
     <string name="error_title1">Kudt</string>
     <string name="error_title2">Bah</string>
     <string name="error_title3">Faal</string>
+    <string name="score">punten</string>
+    <string name="share">Deel</string>
+    <string name="share_with_friends">Deel dit huiverinwekkende artikel met je \'vrienden\'</string>
+    <string name="mod_score">Wat vind je van dit reaguursel?</string>
 </resources>
