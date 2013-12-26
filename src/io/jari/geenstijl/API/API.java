@@ -77,6 +77,9 @@ public class API {
         //id
         artikel.id = Integer.parseInt(artikel_el.attr("id").substring(1));
 
+        //summary
+        artikel.summary = artikel_el.select("a.more").first() != null;
+
         //titel
         artikel.titel = artikel_el.select("h1").text();
 

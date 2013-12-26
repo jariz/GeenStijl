@@ -107,6 +107,8 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
         }
 
         Button link = (Button) item.findViewById(R.id.more);
+        if(artikel.summary) link.setText(context.getResources().getString(R.string.read_more));
+        else link.setText(context.getResources().getString(R.string.reaguursels));
         if (!readmore_enabled) link.setVisibility(View.GONE);
         else
             link.setOnClickListener(new View.OnClickListener() {

@@ -11,4 +11,7 @@
     <string name="share_with_friends">Deel dit huiverinwekkende artikel met je \'vrienden\'</string>
     <string name="mod_score">Wat vind je van dit reaguursel?</string>
     <string name="vote_fail">Je %s is mislukt!</string>
+    <string name="read_more">Lees verder</string>
+    <string name="reaguursels">Reacties</string>
+    <string name="embed">Media</string>
 </resources>

@@ -69,13 +69,13 @@
 
         <view class="com.devspark.robototextview.widget.RobotoButton" style="@style/Theme.Geenstijl.Card.Action"
               app:typeface="roboto_regular" android:layout_width="fill_parent" android:layout_height="wrap_content"
-              android:id="@+id/embed" android:text="Media"/>
+              android:id="@+id/embed" android:text="@string/embed"/>
 
         <view android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               class="com.devspark.robototextview.widget.RobotoButton" android:id="@+id/more"
               style="@style/Theme.Geenstijl.Card.Action"
-              android:text="Lees meer"
+              android:text="@string/read_more"
               app:typeface="roboto_regular" android:layout_marginBottom="2dp"/>
 
     </LinearLayout>
