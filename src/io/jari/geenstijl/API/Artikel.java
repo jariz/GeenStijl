@@ -25,4 +25,5 @@ public class Artikel implements Serializable {
     public String link;
     public String embed;
     public Comment[] comments;
+    public Integer id;
 }

@@ -74,7 +74,7 @@ public class Article extends Base {
 
                                 comments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        new CommentDialog().show(getSupportFragmentManager(), "CmmntDlg");
+                                        new CommentDialog(artikel.comments[position], artikel).show(getSupportFragmentManager(), "CmmntDlg");
                                     }
                                 });
 

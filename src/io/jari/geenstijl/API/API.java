@@ -2,20 +2,19 @@ package io.jari.geenstijl.API;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.util.Log;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.*;
-import java.net.*;
-import java.text.DateFormat;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -60,8 +59,24 @@ public class API {
         return arr_res;
     }
 
+    public static boolean vote(Artikel artikel, Comment comment, String direction) {
+        try {
+            JSONObject jsonObject = new JSONObject(downloadString(String.format("http://www.geenstijl.nl/modlinks/domod.php?entry=%s&cid=%s&mod=%s", artikel.id, comment.id, direction)));
+            Log.d(TAG, "Feedback for comment "+comment.id+" on article "+artikel.id+" was "+jsonObject.getBoolean("success"));
+            return jsonObject.getBoolean("success");
+        } catch(Exception z) {
+            Log.w(TAG, "vote() uncaught exception! Returning false");
+            z.printStackTrace();
+            return false;
+        }
+    }
+
     private static Artikel parseArtikel(Element artikel_el) throws ParseException {
         Artikel artikel = new Artikel();
+
+        //id
+        artikel.id = Integer.parseInt(artikel_el.attr("id").substring(1));
+
         //titel
         artikel.titel = artikel_el.select("h1").text();
 
@@ -116,6 +131,13 @@ public class API {
         return artikel;
     }
 
+    /**
+     * Get article and comments (note that getArticles doesn't get the comments)
+     * @param url The direct url to the geenstijl article
+     * @return Artikel The fetched article
+     * @throws IOException
+     * @throws ParseException
+     */
     public static Artikel getArticle(String url) throws IOException, ParseException {
         Artikel artikel;
         Log.i(TAG, "GETARTICLE STEP 1/3: Getting/parsing article page & images... " + url);
@@ -127,17 +149,7 @@ public class API {
         String jsurl = document.select("[src*=modlinks]").first().attr("src");
 
         Log.i(TAG, "GETARTICLE STEP 2/3: Getting scoremods... " + jsurl);
-        URLConnection con = new URL(jsurl).openConnection();
-        InputStream in = con.getInputStream();
-        String encoding = con.getContentEncoding();
-        encoding = encoding == null ? "UTF-8" : encoding;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buf = new byte[8192];
-        int len = 0;
-        while ((len = in.read(buf)) != -1) {
-            baos.write(buf, 0, len);
-        }
-        String js = new String(baos.toByteArray(), encoding);
+        String js = downloadString(jsurl);
 
         Log.i(TAG, "GETARTICLE STEP 3/3: Parsing scores and comments... " + jsurl);
         Pattern p = Pattern.compile("moderation\\['(\\d+)'\\] = '(-?[0-9]{0,4})';", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -184,7 +196,21 @@ public class API {
         return artikel;
     }
 
-    public static byte[] readBytes(InputStream inputStream) throws IOException {
+    static String downloadString(String url) throws IOException {
+        URLConnection con = new URL(url).openConnection();
+        InputStream in = con.getInputStream();
+        String encoding = con.getContentEncoding();
+        encoding = encoding == null ? "UTF-8" : encoding;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int len = 0;
+        while ((len = in.read(buf)) != -1) {
+            baos.write(buf, 0, len);
+        }
+        return new String(baos.toByteArray(), encoding);
+    }
+
+    static byte[] readBytes(InputStream inputStream) throws IOException {
         // this dynamically extends to take the bytes you read
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
 
