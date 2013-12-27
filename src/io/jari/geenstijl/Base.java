@@ -36,6 +36,8 @@ public class Base extends SherlockFragmentActivity {
             tintManager.setTintColor(getResources().getColor(R.color.geenstijl));
             tintManager.setStatusBarTintEnabled(true);
         }
+
+        getSupportActionBar().setIcon(R.drawable.icon);
     }
 
     void switchState(int state) {

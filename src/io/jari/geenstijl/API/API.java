@@ -62,9 +62,9 @@ public class API {
     public static boolean vote(Artikel artikel, Comment comment, String direction) {
         try {
             JSONObject jsonObject = new JSONObject(downloadString(String.format("http://www.geenstijl.nl/modlinks/domod.php?entry=%s&cid=%s&mod=%s", artikel.id, comment.id, direction)));
-            Log.d(TAG, "Feedback for comment "+comment.id+" on article "+artikel.id+" was "+jsonObject.getBoolean("success"));
+            Log.d(TAG, "Feedback for comment " + comment.id + " on article " + artikel.id + " was " + jsonObject.getBoolean("success"));
             return jsonObject.getBoolean("success");
-        } catch(Exception z) {
+        } catch (Exception z) {
             Log.w(TAG, "vote() uncaught exception! Returning false");
             z.printStackTrace();
             return false;
@@ -136,6 +136,7 @@ public class API {
 
     /**
      * Get article and comments (note that getArticles doesn't get the comments)
+     *
      * @param url The direct url to the geenstijl article
      * @return Artikel The fetched article
      * @throws IOException

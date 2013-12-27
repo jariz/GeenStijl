@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GeenStijl</string>
-    <string name="error_desc1">Het lijkt erop dat je internet er geen zin in heeft,\nof GeenStijl is plat. Doe eens fixen!</string>
-    <string name="error_desc2">Doe eens fixen!</string>
-    <string name="error_title1">Kudt</string>
-    <string name="error_title2">Bah</string>
-    <string name="error_title3">Faal</string>
-    <string name="score">punten</string>
-    <string name="share">Deel</string>
-    <string name="share_with_friends">Deel dit huiverinwekkende artikel met je \'vrienden\'</string>
-    <string name="mod_score">Wat vind je van dit reaguursel?</string>
-    <string name="vote_fail">Je %s is mislukt!</string>
-    <string name="read_more">Lees verder</string>
-    <string name="reaguursels">Reacties</string>
+    <string name="error_desc1">Looks like your internet isn\'t working or GeenStijl is down.</string>
+    <string name="error_desc2">or GeenStijl is down.</string>
+    <string name="error_title1">Woops</string>
+    <string name="error_title2">Uh-oh</string>
+    <string name="error_title3">Error</string>
+    <string name="score">points</string>
+    <string name="share">Share</string>
+    <string name="share_with_friends">Share this amazing article with your \'friends\'</string>
+    <string name="mod_score">What do you think of this comment?</string>
+    <string name="vote_fail">Your %s failed!</string>
+    <string name="read_more">Continue reading</string>
+    <string name="reaguursels">Comments</string>
     <string name="embed">Media</string>
 </resources>
