@@ -12,9 +12,11 @@ De app is volledig open source en - natuurlijk - gratis.
 ● Android 2.3.3 supported. (ondanks gebruik van de nieuwste android features)     
 ● Reaguursels bekijken  
 ● Reaguursels +1/-1en  
-● Opent GeenStijl artikel links
-● Transparent navigatie/statusbar op Android KitKat
-● Pull to refresh
+● Opent GeenStijl artikel links  
+● Transparent navigatie/statusbar op Android KitKat   
+● Pull to refresh    
+
+<a href="play.google.com/store/apps/details?id=io.jari.geenstijl"><img src="https://developer.android.com/images/brand/en_app_rgb_wo_60.png"></a>
 
 <b>Links</b>  
 Project pagina: (pull requests welkom!)  
