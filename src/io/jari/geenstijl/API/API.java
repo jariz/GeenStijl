@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 Jari Zwarts
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.jari.geenstijl.API;
 
 import android.content.Context;
@@ -38,14 +54,18 @@ public class API {
      * @throws ParseException
      * @throws URISyntaxException
      */
-    public static Artikel[] getArticles(boolean force, Context context) throws IOException, ParseException, URISyntaxException {
-        if (!force) {
+    public static Artikel[] getArticles(boolean force, boolean page2, Context context) throws IOException, ParseException, URISyntaxException {
+        if (!force && !page2) {
             Artikel[] cache = getCache(context);
             if (cache != null) return cache;
         }
 
         //we halen onze data van de html versie van geenstijl, omdat de RSS versie pure poep is, en omdat jsoup awesome is
-        Document document = Jsoup.connect("http://www.geenstijl.nl").get();
+        Document document;
+        if(page2)
+            document = Jsoup.connect("http://www.geenstijl.nl/index2.html").get();
+        else document = Jsoup.connect("http://www.geenstijl.nl").get();
+
         Elements artikelen = document.select("#content>article");
         ArrayList<Artikel> resultaat = new ArrayList<Artikel>();
         for (Element artikel_el : artikelen) {
@@ -55,7 +75,8 @@ public class API {
         }
         Artikel[] arr_res = new Artikel[resultaat.size()];
         resultaat.toArray(arr_res);
-        setCache(arr_res, context);
+        if(!page2)
+            setCache(arr_res, context);
         return arr_res;
     }
 
@@ -92,6 +113,7 @@ public class API {
 //                    artikel.plaatje = Drawable.createFromStream(((java.io.InputStream)new URL(plaatje.attr("src")).getContent()), null);
                 artikel.plaatje = readBytes((InputStream) new URL(plaatje.attr("src")).getContent());
                 artikel.groot_plaatje = plaatje.hasClass("groot");
+                if(!plaatje.attr("width").equals("100") || !plaatje.attr("height").equals("100")) artikel.groot_plaatje = true;
                 if (artikel.groot_plaatje) Log.i(TAG, "    Done. Big image.");
                 else Log.i(TAG, "    Done.");
             } catch (Exception ex) {

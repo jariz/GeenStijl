@@ -1,23 +1,47 @@
+/*
+ * Copyright 2014 Jari Zwarts
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.jari.geenstijl.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.*;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Article;
 import io.jari.geenstijl.R;
 import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * JARI.IO
@@ -27,18 +51,17 @@ import org.w3c.dom.Text;
 public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter {
     public ArtikelAdapter(Activity context, int resource, Artikel[] objects) {
         super(context, resource, objects);
-
-        artikelen = objects;
+        artikelen = new ArrayList<Artikel>(Arrays.asList(objects));
         this.context = context;
     }
 
     Activity context;
-    Artikel[] artikelen;
+    ArrayList<Artikel> artikelen;
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View item = convertView;
-        final Artikel artikel = artikelen[position];
+        final Artikel artikel = artikelen.get(position);
 
         if (item == null)
             item = context.getLayoutInflater().inflate(R.layout.blog_item, null);
@@ -46,6 +69,31 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
         item = fillView(item, artikel, context, true);
 
         return item;
+    }
+
+    /*
+     * We override these methods because we want to avoid android using it's own list
+     * Cuz we update ours, and not theirs
+     */
+
+    @Override
+    public int getCount() {
+        return artikelen.size();
+    }
+
+    @Override
+    public Artikel getItem(int position) {
+        return artikelen.get(position);
+    }
+
+    @Override
+    public int getPosition(Artikel item) {
+        return artikelen.indexOf(item);
+    }
+
+    public void update(Artikel[] new_artikelen) {
+        artikelen.addAll(Arrays.<Artikel>asList(new_artikelen));
+        notifyDataSetChanged();
     }
 
     public static View fillView(View item, final Artikel artikel, final Context context, Boolean readmore_enabled) {
@@ -70,17 +118,17 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
             } else {
                 big.setVisibility(View.VISIBLE);
                 small.setVisibility(View.GONE);
-//                Rect rekt = artikel.plaatje.getBounds();
-//                big.setMinimumWidth(rekt.width());
-//                big.setMinimumHeight(rekt.height());
-//                big.setScaleType(ImageView.ScaleType.FIT_CENTER);
-//                big.setAdjustViewBounds(true);
-//                big.setMinimumHeight(artikel.plaatje.getMinimumHeight());
-//                big.setHei
-//                big.setAdjustViewBounds(true);
-//                big.setMinimumHeight((item.getWidth() / bitmap.getMinimumWidth()) * bitmap.getMinimumHeight() * 2);
-//                big.setMinimumHeight(99999);
-                big.getLayoutParams().height = (item.getWidth() / bitmap.getMinimumWidth()) * bitmap.getMinimumHeight();
+
+                //ronde 22 van de vreselijke large image hoogte berekening code
+                //ik denk dat ik 50% van het project aan het onderste gedeelte heb besteed :')
+                //maar shit werkt freakin sweet :D
+                Resources r = context.getResources();
+                float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, r.getDisplayMetrics());
+                WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+                Display display = wm.getDefaultDisplay();
+                float ratio = (display.getWidth() - px) / bitmap.getMinimumWidth();
+                big.getLayoutParams().height = Math.round(bitmap.getMinimumHeight() * ratio);
+
                 big.setImageDrawable(bitmap);
             }
         } else {

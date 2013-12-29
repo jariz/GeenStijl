@@ -5,21 +5,14 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-        >
+              android:id="@+id/layout">
 
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            style="@style/Theme.Geenstijl.Card">
-        <com.devspark.robototextview.widget.RobotoTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Titel"
-                app:typeface="roboto_regular"
-                android:textColor="#333"
-                android:id="@+id/meerrr"
-                android:linksClickable="true"
-                android:layout_gravity="center_horizontal"/>
-    </LinearLayout>
+    <view android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          class="com.devspark.robototextview.widget.RobotoButton"
+          app:typeface="roboto_condensed_italic"
+          android:textSize="12sp"
+          android:text="@string/more" style="@style/Theme.Geenstijl.Card"
+          android:background="@drawable/more_bg"
+          android:id="@+id/more"/>
 </LinearLayout>
