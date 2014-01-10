@@ -29,8 +29,11 @@ import android.view.ViewGroup;
 import android.widget.*;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.API.Comment;
+import io.jari.geenstijl.API.RRTime;
 import io.jari.geenstijl.Article;
 import io.jari.geenstijl.R;
+
+import java.util.Date;
 
 /**
  * JARI.IO
@@ -59,7 +62,7 @@ public class CommentAdapter extends ArrayAdapter<Comment> implements ListAdapter
         ((TextView)item.findViewById(R.id.author)).setText(comment.auteur);
         if(comment.score == null) comment.score = 0;
         ((TextView)item.findViewById(R.id.score)).setText(Integer.toString(comment.score));
-        ((TextView)item.findViewById(R.id.timespan)).setText(DateUtils.getRelativeTimeSpanString(comment.datum.getTime()));
+        ((TextView)item.findViewById(R.id.timespan)).setText(RRTime.formatDurationMs(new Date().getTime() - comment.datum.getTime(), context) + context.getResources().getString(R.string.ago));
         ((TextView)item.findViewById(R.id.content)).setText(Html.fromHtml(comment.inhoud));
 
         return item;

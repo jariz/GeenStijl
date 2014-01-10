@@ -15,4 +15,30 @@
     <string name="reaguursels">Comments</string>
     <string name="embed">Media</string>
     <string name="more">More</string>
+    <string name="login">Add account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="signin">Sign in</string>
+    <string name="cancel">Cancel</string>
+    <string name="login_error">Unable to log in.</string>
+    <string name="confirm_logout">Are you sure you want to log out?</string>
+    <string name="logout">Log out</string>
+    <string name="reply">Reply</string>
+    <string name="reply_error">Reply failed, retry or login again.</string>
+    <string name="loggedin">Welcome %s</string>
+
+    <string name="ago">\u0020ago</string>
+    <string name="year">year</string>
+    <string name="years">years</string>
+    <string name="hour">hour</string>
+    <string name="hours">hours</string>
+    <string name="min">minute</string>
+    <string name="mins">minutes</string>
+    <string name="sec">sec</string>
+    <string name="secs">secs</string>
+    <string name="day">day</string>
+    <string name="days">days</string>
+    <string name="month">month</string>
+    <string name="months">months</string>
+
 </resources>

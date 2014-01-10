@@ -35,6 +35,7 @@ public class Artikel implements Serializable {
     public String inhoud;
     public byte[] plaatje; /* byte for serialization reasons */
     public Boolean groot_plaatje;
+    public byte[] background; /*background header powned*/
     public Integer reacties;
     public Date datum;
     public String auteur;

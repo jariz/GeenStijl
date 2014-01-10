@@ -40,6 +40,7 @@ import io.jari.geenstijl.Article;
 import io.jari.geenstijl.R;
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -104,7 +105,7 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
         desc.setText(Html.fromHtml(artikel.inhoud));
         desc.setMovementMethod(LinkMovementMethod.getInstance());
 
-        footer.setText(String.format("%s | %s | %s reacties", artikel.auteur, artikel.datum.toString(), artikel.reacties)); //todo icons?
+        footer.setText(String.format("%s | %s | %s reacties", artikel.auteur, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(artikel.datum), artikel.reacties));
 
         ImageView big = (ImageView) item.findViewById(R.id.big_image);
         ImageView small = (ImageView) item.findViewById(R.id.small_image);

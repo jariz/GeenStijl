@@ -19,18 +19,20 @@ package io.jari.geenstijl.API;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import org.apache.http.HttpRequest;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -60,11 +62,13 @@ public class API {
             if (cache != null) return cache;
         }
 
+        ensureCookies();
+
         //we halen onze data van de html versie van geenstijl, omdat de RSS versie pure poep is, en omdat jsoup awesome is
         Document document;
-        if(page2)
+        if (page2)
             document = Jsoup.connect("http://www.geenstijl.nl/index2.html").get();
-        else document = Jsoup.connect("http://www.geenstijl.nl").get();
+        else document = Jsoup.connect("http://www.geenstijl.nl/").get();
 
         Elements artikelen = document.select("#content>article");
         ArrayList<Artikel> resultaat = new ArrayList<Artikel>();
@@ -75,19 +79,36 @@ public class API {
         }
         Artikel[] arr_res = new Artikel[resultaat.size()];
         resultaat.toArray(arr_res);
-        if(!page2)
+        if (!page2)
             setCache(arr_res, context);
         return arr_res;
     }
 
     public static boolean vote(Artikel artikel, Comment comment, String direction) {
         try {
+            ensureCookies();
             JSONObject jsonObject = new JSONObject(downloadString(String.format("http://www.geenstijl.nl/modlinks/domod.php?entry=%s&cid=%s&mod=%s", artikel.id, comment.id, direction)));
             Log.d(TAG, "Feedback for comment " + comment.id + " on article " + artikel.id + " was " + jsonObject.getBoolean("success"));
             return jsonObject.getBoolean("success");
         } catch (Exception z) {
             Log.w(TAG, "vote() uncaught exception! Returning false");
             z.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean reply(Artikel artikel, String message, Context context) {
+        ensureCookies();
+        if(!loggedIn(context)) return false;
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("static", "1"));
+        params.add(new BasicNameValuePair("entry_id", Integer.toString(artikel.id)));
+        params.add(new BasicNameValuePair("text", message));
+        try {
+            postUrl("http://app.steylloos.nl/mt-comments.fcgi", params, getSession(context));
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -113,7 +134,8 @@ public class API {
 //                    artikel.plaatje = Drawable.createFromStream(((java.io.InputStream)new URL(plaatje.attr("src")).getContent()), null);
                 artikel.plaatje = readBytes((InputStream) new URL(plaatje.attr("src")).getContent());
                 artikel.groot_plaatje = plaatje.hasClass("groot");
-                if(!plaatje.attr("width").equals("100") || !plaatje.attr("height").equals("100")) artikel.groot_plaatje = true;
+                if (!plaatje.attr("width").equals("100") || !plaatje.attr("height").equals("100"))
+                    artikel.groot_plaatje = true;
                 if (artikel.groot_plaatje) Log.i(TAG, "    Done. Big image.");
                 else Log.i(TAG, "    Done.");
             } catch (Exception ex) {
@@ -165,6 +187,7 @@ public class API {
      * @throws ParseException
      */
     public static Artikel getArticle(String url) throws IOException, ParseException {
+        ensureCookies();
         Artikel artikel;
         Log.i(TAG, "GETARTICLE STEP 1/3: Getting/parsing article page & images... " + url);
         Document document = Jsoup.connect(url).get();
@@ -202,10 +225,16 @@ public class API {
             Element footer = comment_el.select("footer").first();
             StringTokenizer footer_items = new StringTokenizer(footer.text(), "|");
             comment.auteur = footer_items.nextToken().trim();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyHH:mm", Locale.US);
-            comment.datum = simpleDateFormat.parse(footer_items.nextToken().trim() + footer_items.nextToken().trim());
 
-//            comment_el.select("footer").remove();
+            try {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyHH:mm", Locale.US);
+                comment.datum = simpleDateFormat.parse(footer_items.nextToken().trim() + footer_items.nextToken().trim());
+            }
+            catch(ParseException parseEx) {
+                //fuck gebruikers met pipe chars in hun naam, pech, gehad.
+                continue;
+            }
+
             comment.inhoud = comment_el.select("p").first().html();
 
             Log.d(TAG + ".perf", "CommentParser: Parsed " + comment.id + ": " + i + "/" + comments_el.size());
@@ -222,10 +251,141 @@ public class API {
         return artikel;
     }
 
+    /**
+     * ensureCookies sets up cookiemanager and makes sure cookies are set up
+     */
+    static void ensureCookies() {
+        if(CookieHandler.getDefault() == null) {
+            cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+            CookieHandler.setDefault(cookieManager);
+        }
+    }
+
+    public static CookieManager cookieManager;
+
+    public static boolean logIn(String email, String password, Context context) throws IOException, URISyntaxException {
+        ensureCookies();
+        //add params
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("t", "666"));
+        params.add(new BasicNameValuePair("_mode", "handle_sign_in"));
+        params.add(new BasicNameValuePair("_return", "http%3A%2F%2Fapp.steylloos.nl%2Fmt-comments.fcgi%3F__mode%3Dhandle_sign_in%26entry_id%3D3761581%26static%3Dhttp%3A%2F%2Fwww.steylloos.nl%2Fcookiesync.php%3Fsite%3DGSNL%2526return%3DaHR0cDovL3d3dy5nZWVuc3RpamwubmwvcmVhZGVyLWxvZ2dlZGlu"));
+        params.add(new BasicNameValuePair("email", email));
+        params.add(new BasicNameValuePair("password", password));
+
+        String res = postUrl("http://registratie.geenstijl.nl/registratie/gs_engine.php?action=login", params, null);
+        if (res.contains("font color=\"red\"")) return false;
+        else {
+            String cookiesync = res.substring(42, res.length() - 2);
+            //do cookiesync
+            HttpURLConnection http = (HttpURLConnection) new URL(cookiesync).openConnection();
+            http.setDoOutput(true); //om een of andere reden moeten we dit inschakelen om redirects te followen (?)
+            http.connect();
+            http.getResponseCode();
+            http.getURL();
+            if (!http.getURL().toString().equals("http://www.geenstijl.nl/reader-loggedin"))
+                return false; //we're not getting redirected to the 'article', assume login failed & bail out
+            else {
+                List<HttpCookie> cookies = cookieManager.getCookieStore().get(new URI("http://www.geenstijl.nl"));
+                String commenter_name = null;
+                String tk_commenter = null;
+                for (HttpCookie cookie : cookies) {
+                    if (cookie.getName().equals("tk_commenter")) tk_commenter = cookie.getValue();
+                    else if (cookie.getName().equals("commenter_name")) commenter_name = cookie.getValue();
+                }
+                //sanity check
+                if (commenter_name == null || tk_commenter == null) {
+                    Log.wtf(TAG, "Ermmm, wut? GeenStijl redirected us to the correct URL but hasn't passed us the correct cookies?");
+                    return false;
+                }
+
+                USERNAME = commenter_name;
+                String cheader = String.format("commenter_name=%s; tk_commenter=%s;", commenter_name, tk_commenter);
+                Log.d(TAG, "Login completed, debug data:\ncookieheader: " + cheader + "\nURL (should be reader-loggedin): " + http.getURL());
+                setSession(cheader, context);
+                return true;
+            }
+        }
+    }
+
+    public static String USERNAME = "";
+
+    public static void logOut(Context context) {
+        setSession("", context);
+    }
+
+    public static boolean loggedIn(Context context) {
+        return !getSession(context).equals("");
+    }
+
+    private static void setSession(String session, Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
+        preferences.edit().putString("session", session).commit();
+    }
+
+    private static String getSession(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
+        return preferences.getString("session", "");
+    }
+
+    /**
+     * getCache returns the latest cached items.
+     * If the cache is over 30 mins old it'll return null and you're expected to download the new articles and set the cache again
+     *
+     * @return Artikel[]
+     */
+    private static Artikel[] getCache(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
+        long age = preferences.getLong("items_age", 0);
+        if (Calendar.getInstance().getTimeInMillis() - age <= 1800000)
+            return (Artikel[]) SerializeObject.stringToObject(preferences.getString("items", ""));
+        else return null;
+    }
+
+    /**
+     * setCache saves the article array to the cache.
+     * Expires in 30 mins.
+     */
+    private static void setCache(Artikel[] artikels, Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
+        preferences.edit().putString("items", SerializeObject.objectToString(artikels)).putLong("items_age", Calendar.getInstance().getTimeInMillis()).commit();
+    }
+
+    /*
+     ~ HELPERS ~
+     */
+
     static String downloadString(String url) throws IOException {
         URLConnection con = new URL(url).openConnection();
         InputStream in = con.getInputStream();
         String encoding = con.getContentEncoding();
+        encoding = encoding == null ? "UTF-8" : encoding;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int len = 0;
+        while ((len = in.read(buf)) != -1) {
+            baos.write(buf, 0, len);
+        }
+        return new String(baos.toByteArray(), encoding);
+    }
+
+    public static String postUrl(String url, List<NameValuePair> params, String cheader) throws IOException {
+        HttpURLConnection http = (HttpURLConnection) new URL(url).openConnection();
+        http.setRequestMethod("POST");
+        http.setDoInput(true);
+        http.setDoOutput(true);
+        if(cheader != null) http.setRequestProperty("Cookie", cheader);
+        OutputStream os = http.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+        writer.write(getQuery(params));
+        writer.flush();
+        writer.close();
+        os.close();
+
+        http.connect();
+
+        InputStream in = http.getInputStream();
+        String encoding = http.getContentEncoding();
         encoding = encoding == null ? "UTF-8" : encoding;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buf = new byte[8192];
@@ -254,26 +414,21 @@ public class API {
         return byteBuffer.toByteArray();
     }
 
-    /**
-     * getCache returns the latest cached items.
-     * If the cache is over 30 mins old it'll return null and you're expected to download the new articles and set the cache again
-     *
-     * @return Artikel[]
-     */
-    private static Artikel[] getCache(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
-        long age = preferences.getLong("items_age", 0);
-        if (Calendar.getInstance().getTimeInMillis() - age <= 1800000)
-            return (Artikel[]) SerializeObject.stringToObject(preferences.getString("items", ""));
-        else return null;
-    }
+    private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
 
-    /**
-     * setCache saves the article array to the cache.
-     * Expires in 30 mins.
-     */
-    private static void setCache(Artikel[] artikels, Context context) {
-        SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
-        preferences.edit().putString("items", SerializeObject.objectToString(artikels)).putLong("items_age", Calendar.getInstance().getTimeInMillis()).commit();
+        for (NameValuePair pair : params) {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
     }
 }

@@ -17,26 +17,37 @@
 package io.jari.geenstijl;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Adapters.ArtikelAdapter;
 import io.jari.geenstijl.Adapters.CommentAdapter;
 import io.jari.geenstijl.Dialogs.CommentDialog;
+import io.jari.geenstijl.Dialogs.ReplyDialog;
 
 import java.security.InvalidParameterException;
 import java.util.List;
@@ -47,6 +58,9 @@ import java.util.List;
  * Time: 01:46
  */
 public class Article extends Base {
+
+    Artikel currentArtikel = null;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -73,9 +87,30 @@ public class Article extends Base {
 
                     try {
                         final Artikel artikel = API.getArticle(url);
+                        currentArtikel = artikel;
                         runOnUiThread(new Runnable() {
                             public void run() {
+
+                                //fading actionbar in the house
+                                if(artikel.groot_plaatje) {
+                                    BitmapDrawable bitmap = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(artikel.plaatje, 0, artikel.plaatje.length));
+                                    FadingActionBarHelper helper = new FadingActionBarHelper()
+                                            .contentLayout(R.layout.article)
+                                            .headerLayout(R.layout.header)
+                                            .actionBarBackground(bitmap);
+                                    setContentView(helper.createView(Article.this));
+                                    helper.initActionBar(Article.this);
+                                    ImageView header = (ImageView)findViewById(R.id.image_header);
+                                    header.setImageDrawable(bitmap);
+//                                    WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+//                                    Display display = wm.getDefaultDisplay();
+//                                    float ratio = (float)display.getWidth() / (float)bitmap.getMinimumWidth();
+//                                    header.getLayoutParams().height = Math.round(bitmap.getMinimumHeight() * ratio);
+                                }
+
                                 ListView comments = (ListView)findViewById(R.id.show);
+
+
 
                                 ActionBar bar = getSupportActionBar();
                                 bar.setDisplayHomeAsUpEnabled(true);
@@ -112,10 +147,13 @@ public class Article extends Base {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.article_actions, menu);
-        return super.onCreateOptionsMenu(menu);
+        if(!API.loggedIn(this))
+            inflater.inflate(R.menu.article_actions, menu);
+        else inflater.inflate(R.menu.article_actions_loggedin, menu);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -131,6 +169,10 @@ public class Article extends Base {
                 sendIntent.putExtra(Intent.EXTRA_TEXT, getIntent().getData().toString());
                 sendIntent.setType("text/plain");
                 startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_with_friends)));
+                return true;
+            case R.id.action_reply:
+                //todo mogelijke nullpointer als je reply klikt voordat het artikel geladen is
+                new ReplyDialog(this, currentArtikel).show(getSupportFragmentManager(), "RplDg");
                 return true;
         }
         return super.onOptionsItemSelected(item);

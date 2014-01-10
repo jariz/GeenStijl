@@ -15,4 +15,29 @@
     <string name="reaguursels">Reacties</string>
     <string name="embed">Media</string>
     <string name="more">Meerrrr</string>
+    <string name="login">Voeg account toe</string>
+    <string name="email">E-mail</string>
+    <string name="password">Wachtwoord</string>
+    <string name="signin">Inloggen</string>
+    <string name="cancel">Annuleren</string>
+    <string name="login_error">Inloggen is mislukt</string>
+    <string name="confirm_logout">Weet je zeker dat je uit wilt loggen?</string>
+    <string name="logout">Uitloggen</string>
+    <string name="reply">Reageren</string>
+    <string name="reply_error">Reactie mislukt, probeer opnieuw of log opnieuw in.</string>
+    <string name="loggedin">Welkom %s</string>
+
+    <string name="ago">\u0020geleden</string>
+    <string name="year">jaar</string>
+    <string name="years">jaren</string>
+    <string name="hour">uur</string>
+    <string name="hours">uur</string>
+    <string name="min">minuut</string>
+    <string name="mins">minuten</string>
+    <string name="sec">seconde</string>
+    <string name="secs">seconden</string>
+    <string name="day">dag</string>
+    <string name="days">dagen</string>
+    <string name="month">maand</string>
+    <string name="months">maanden</string>
 </resources>

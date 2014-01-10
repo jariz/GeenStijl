@@ -21,6 +21,8 @@
     <orderEntry type="module" module-name="actionbarsherlock" />
     <orderEntry type="module" module-name="RobotoTextView" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="fadingactionbar" />
+    <orderEntry type="module" module-name="crouton" />
     <orderEntry type="library" name="android-support-v4" level="project" />
   </component>
 </module>

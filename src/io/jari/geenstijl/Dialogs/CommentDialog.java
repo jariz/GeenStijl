@@ -24,6 +24,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.Toast;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.API.Comment;
@@ -76,7 +78,7 @@ public class CommentDialog extends DialogFragment {
                                 if (!API.vote(artikel, comment, direction))
                                     activity.runOnUiThread(new Runnable() {
                                         public void run() {
-                                            Toast.makeText(activity, String.format(getResources().getString(R.string.vote_fail), direction), Toast.LENGTH_SHORT).show();
+                                            Crouton.makeText(activity, activity.getString(R.string.vote_fail, direction), Style.ALERT, R.id.show).show();
                                         }
                                     });
                             }
