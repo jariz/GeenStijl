@@ -276,17 +276,7 @@ public class API {
         String res = postUrl("http://registratie.geenstijl.nl/registratie/gs_engine.php?action=login", params, null);
         if (res.contains("font color=\"red\"")) return false;
         else {
-            String cookiesync = res.substring(42, res.length() - 2);
-            //do cookiesync
-            HttpURLConnection http = (HttpURLConnection) new URL(cookiesync).openConnection();
-            http.setDoOutput(true); //om een of andere reden moeten we dit inschakelen om redirects te followen (?)
-            http.connect();
-            http.getResponseCode();
-            http.getURL();
-            if (!http.getURL().toString().equals("http://www.geenstijl.nl/reader-loggedin"))
-                return false; //we're not getting redirected to the 'article', assume login failed & bail out
-            else {
-                List<HttpCookie> cookies = cookieManager.getCookieStore().get(new URI("http://www.geenstijl.nl"));
+                List<HttpCookie> cookies = cookieManager.getCookieStore().get(new URI("http://app.steylloos.nl"));
                 String commenter_name = null;
                 String tk_commenter = null;
                 for (HttpCookie cookie : cookies) {
@@ -301,10 +291,9 @@ public class API {
 
                 USERNAME = commenter_name;
                 String cheader = String.format("commenter_name=%s; tk_commenter=%s;", commenter_name, tk_commenter);
-                Log.d(TAG, "Login completed, debug data:\ncookieheader: " + cheader + "\nURL (should be reader-loggedin): " + http.getURL());
+                Log.d(TAG, "Login completed, debug data:\ncookieheader: " + cheader);
                 setSession(cheader, context);
                 return true;
-            }
         }
     }
 
