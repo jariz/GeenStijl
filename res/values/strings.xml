@@ -25,7 +25,8 @@
     <string name="logout">Log out</string>
     <string name="reply">Reply</string>
     <string name="reply_error">Reply failed, retry or login again.</string>
-    <string name="loggedin">Welcome %s</string>
+    <string name="loggedin">Welcome, %s!</string>
+    <string name="reply_success">Your comment was successfully posted.</string>
 
     <string name="ago">\u0020ago</string>
     <string name="year">year</string>

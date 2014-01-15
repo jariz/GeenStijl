@@ -14,13 +14,15 @@
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
     </content>
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="library" name="android-support-v4" level="project" />
     <orderEntry type="module" module-name="actionbarsherlock" />
     <orderEntry type="module" module-name="RobotoTextView" />
     <orderEntry type="module" module-name="p2r" />
+    <orderEntry type="module" module-name="main" />
     <orderEntry type="library" name="jsoup-1.7.3" level="application" />
     <orderEntry type="library" name="SystemBarTint" level="application" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="GSRES" />
+    <orderEntry type="library" name="android-support-v4" level="project" />
   </component>
 </module>
 

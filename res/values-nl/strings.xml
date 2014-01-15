@@ -25,7 +25,8 @@
     <string name="logout">Uitloggen</string>
     <string name="reply">Reageren</string>
     <string name="reply_error">Reactie mislukt, probeer opnieuw of log opnieuw in.</string>
-    <string name="loggedin">Welkom %s</string>
+    <string name="loggedin">Welkom, %s!</string>
+    <string name="reply_success">Je reactie is geslaagd!</string>
 
     <string name="ago">\u0020geleden</string>
     <string name="year">jaar</string>

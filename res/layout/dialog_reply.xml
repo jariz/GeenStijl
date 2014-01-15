@@ -34,7 +34,7 @@
             android:layout_marginRight="4dp"
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif"
-            android:minLines="5" android:singleLine="false"
+             android:singleLine="false"
             android:inputType="textMultiLine" android:editable="true"/>
     <ProgressBar
             android:layout_width="wrap_content"

@@ -40,14 +40,19 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
+//import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Adapters.ArtikelAdapter;
 import io.jari.geenstijl.Adapters.CommentAdapter;
 import io.jari.geenstijl.Dialogs.CommentDialog;
 import io.jari.geenstijl.Dialogs.ReplyDialog;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import java.security.InvalidParameterException;
 import java.util.List;
@@ -72,13 +77,17 @@ public class Article extends Base {
         final Activity activity = this;
 
         //#HOLOYOLO
-        if(Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 19) {
             SystemBarTintManager tintManager = new SystemBarTintManager(this);
-            ViewGroup.LayoutParams params = findViewById(R.id.show).getLayoutParams();
+            ViewGroup.LayoutParams params = findViewById(R.id.ptr_layout).getLayoutParams();
             //jariz's home made actionbar hack!
             SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
-            ((ViewGroup.MarginLayoutParams)params).topMargin = config.getPixelInsetTop(true);
+            ((ViewGroup.MarginLayoutParams) params).topMargin = config.getPixelInsetTop(true);
         }
+
+
+
+
 
         new Thread(new Runnable() {
             public void run() {
@@ -109,8 +118,7 @@ public class Article extends Base {
 ////                                    header.getLayoutParams().height = Math.round(bitmap.getMinimumHeight() * ratio);
 //                                }
 
-                                ListView comments = (ListView)findViewById(R.id.show);
-
+                                ListView comments = (ListView) findViewById(R.id.show);
 
 
                                 ActionBar bar = getSupportActionBar();
@@ -119,16 +127,26 @@ public class Article extends Base {
 
                                 View header = getLayoutInflater().inflate(R.layout.blog_item, null);
                                 //even artikeladapter lenen hiervoor, geen zin om die shit weer opnieuw te schrijven
-                                ArtikelAdapter.fillView(header, artikel, getApplicationContext(), false);
+                                ArtikelAdapter.fillView(header, artikel, Article.this, false);
                                 comments.addHeaderView(header);
 
                                 comments.setAdapter(new CommentAdapter(Article.this, 0, artikel.comments));
 
                                 comments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        new CommentDialog(artikel.comments[position], artikel, activity).show(getSupportFragmentManager(), "CmmntDlg");
+                                        new CommentDialog(artikel.comments[position - 1], artikel, activity).show(getSupportFragmentManager(), "CmmntDlg");
                                     }
                                 });
+
+                                final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+                                ActionBarPullToRefresh.from(Article.this)
+                                        .allChildrenArePullable()
+                                        .listener(new OnRefreshListener() {
+                                            public void onRefreshStarted(View view) {
+
+                                            }
+                                        })
+                                        .setup(mPullToRefreshLayout);
 
                                 switchState(STATE_SHOW);
                             }
@@ -151,7 +169,7 @@ public class Article extends Base {
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         MenuInflater inflater = getSupportMenuInflater();
-        if(!API.loggedIn(this))
+        if (!API.loggedIn(this))
             inflater.inflate(R.menu.article_actions, menu);
         else inflater.inflate(R.menu.article_actions_loggedin, menu);
         return super.onPrepareOptionsMenu(menu);
@@ -159,7 +177,7 @@ public class Article extends Base {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 setResult(RESULT_CANCELED);
                 finish();
@@ -168,7 +186,7 @@ public class Article extends Base {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
                 String data = getIntent().getData().toString();
-                if(currentArtikel != null)  data = currentArtikel.titel + " (" + data + ")";
+                if (currentArtikel != null) data = currentArtikel.titel + " (" + data + ")";
                 sendIntent.putExtra(Intent.EXTRA_TEXT, data + " - via GeenStijl Reader http://is.gd/gsreader");
                 sendIntent.setType("text/plain");
                 startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_with_friends)));
@@ -176,7 +194,7 @@ public class Article extends Base {
             case R.id.action_reply:
                 //todo mogelijke nullpointer als je reply klikt voordat het artikel geladen is
                 //todo betere oplossing lol (btn disablen?)
-                if(currentArtikel == null) return true;
+                if (currentArtikel == null) return true;
                 new ReplyDialog(this, currentArtikel).show(getSupportFragmentManager(), "RplDg");
                 return true;
         }

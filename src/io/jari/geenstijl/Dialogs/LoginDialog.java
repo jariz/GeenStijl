@@ -117,8 +117,7 @@ public class LoginDialog extends DialogFragment {
                                     public void run() {
                                         alertDialog.dismiss();
                                         forceOptionsReload();
-
-                                        Crouton.makeText(activity, getString(R.string.loggedin, API.USERNAME), Style.INFO, R.id.ptr_layout).show();
+                                        Crouton.makeText(activity, getString(R.string.loggedin, API.USERNAME), Style.CONFIRM, R.id.ptr_layout).show();
                                     }
                                 });
                             }

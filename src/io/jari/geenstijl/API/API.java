@@ -104,8 +104,9 @@ public class API {
         params.add(new BasicNameValuePair("static", "1"));
         params.add(new BasicNameValuePair("entry_id", Integer.toString(artikel.id)));
         params.add(new BasicNameValuePair("text", message));
+        params.add(new BasicNameValuePair("post", "Post"));
         try {
-            postUrl("http://app.steylloos.nl/mt-comments.fcgi", params, getSession(context));
+            postUrl("http://app.steylloos.nl/mt-comments.fcgi", params, getSession(context), true);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -273,7 +274,7 @@ public class API {
         params.add(new BasicNameValuePair("email", email));
         params.add(new BasicNameValuePair("password", password));
 
-        String res = postUrl("http://registratie.geenstijl.nl/registratie/gs_engine.php?action=login", params, null);
+        String res = postUrl("http://registratie.geenstijl.nl/registratie/gs_engine.php?action=login", params, null, false);
         if (res.contains("font color=\"red\"")) return false;
         else {
                 List<HttpCookie> cookies = cookieManager.getCookieStore().get(new URI("http://app.steylloos.nl"));
@@ -358,12 +359,16 @@ public class API {
         return new String(baos.toByteArray(), encoding);
     }
 
-    public static String postUrl(String url, List<NameValuePair> params, String cheader) throws IOException {
+    public static String postUrl(String url, List<NameValuePair> params, String cheader, boolean refererandorigin) throws IOException {
         HttpURLConnection http = (HttpURLConnection) new URL(url).openConnection();
         http.setRequestMethod("POST");
         http.setDoInput(true);
         http.setDoOutput(true);
         if(cheader != null) http.setRequestProperty("Cookie", cheader);
+        if(refererandorigin) {
+            http.setRequestProperty("Referer", "http://www.geenstijl.nl/mt/archieven/2014/01/brein_chanteert_ondertitelaars.html");
+            http.setRequestProperty("Origin", "http://www.geenstijl.nl");
+        }
         OutputStream os = http.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
         writer.write(getQuery(params));

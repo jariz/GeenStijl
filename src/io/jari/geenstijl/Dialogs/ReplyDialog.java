@@ -26,6 +26,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.R;
@@ -102,6 +104,7 @@ public class ReplyDialog extends DialogFragment {
                                     @Override
                                     public void run() {
                                         alertDialog.dismiss();
+                                        Crouton.makeText(activity, getString(R.string.reply_success), Style.CONFIRM, R.id.ptr_layout).show();
                                     }
                                 });
                             }
