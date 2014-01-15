@@ -91,22 +91,23 @@ public class Article extends Base {
                         runOnUiThread(new Runnable() {
                             public void run() {
 
-                                //fading actionbar in the house
-                                if(artikel.groot_plaatje) {
-                                    BitmapDrawable bitmap = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(artikel.plaatje, 0, artikel.plaatje.length));
-                                    FadingActionBarHelper helper = new FadingActionBarHelper()
-                                            .contentLayout(R.layout.article)
-                                            .headerLayout(R.layout.header)
-                                            .actionBarBackground(bitmap);
-                                    setContentView(helper.createView(Article.this));
-                                    helper.initActionBar(Article.this);
-                                    ImageView header = (ImageView)findViewById(R.id.image_header);
-                                    header.setImageDrawable(bitmap);
-//                                    WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-//                                    Display display = wm.getDefaultDisplay();
-//                                    float ratio = (float)display.getWidth() / (float)bitmap.getMinimumWidth();
-//                                    header.getLayoutParams().height = Math.round(bitmap.getMinimumHeight() * ratio);
-                                }
+                                //Deze laten we nog even liggen, cool idee maar niet echt praktisch
+
+//                                if(artikel.groot_plaatje) {
+//                                    BitmapDrawable bitmap = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(artikel.plaatje, 0, artikel.plaatje.length));
+//                                    FadingActionBarHelper helper = new FadingActionBarHelper()
+//                                            .contentLayout(R.layout.article)
+//                                            .headerLayout(R.layout.header)
+//                                            .actionBarBackground(bitmap);
+//                                    setContentView(helper.createView(Article.this));
+//                                    helper.initActionBar(Article.this);
+//                                    ImageView header = (ImageView)findViewById(R.id.image_header);
+//                                    header.setImageDrawable(bitmap);
+////                                    WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+////                                    Display display = wm.getDefaultDisplay();
+////                                    float ratio = (float)display.getWidth() / (float)bitmap.getMinimumWidth();
+////                                    header.getLayoutParams().height = Math.round(bitmap.getMinimumHeight() * ratio);
+//                                }
 
                                 ListView comments = (ListView)findViewById(R.id.show);
 
@@ -166,12 +167,16 @@ public class Article extends Base {
             case R.id.action_share:
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, getIntent().getData().toString());
+                String data = getIntent().getData().toString();
+                if(currentArtikel != null)  data = currentArtikel.titel + " (" + data + ")";
+                sendIntent.putExtra(Intent.EXTRA_TEXT, data + " - via GeenStijl Reader http://is.gd/gsreader");
                 sendIntent.setType("text/plain");
                 startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_with_friends)));
                 return true;
             case R.id.action_reply:
                 //todo mogelijke nullpointer als je reply klikt voordat het artikel geladen is
+                //todo betere oplossing lol (btn disablen?)
+                if(currentArtikel == null) return true;
                 new ReplyDialog(this, currentArtikel).show(getSupportFragmentManager(), "RplDg");
                 return true;
         }
