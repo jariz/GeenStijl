@@ -65,6 +65,7 @@ import java.util.List;
 public class Article extends Base {
 
     Artikel currentArtikel = null;
+    String currentURL = null;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,8 +74,6 @@ public class Article extends Base {
 
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
-
-        final Activity activity = this;
 
         //#HOLOYOLO
         if (Build.VERSION.SDK_INT >= 19) {
@@ -85,22 +84,36 @@ public class Article extends Base {
             ((ViewGroup.MarginLayoutParams) params).topMargin = config.getPixelInsetTop(true);
         }
 
-
-
-
-
         new Thread(new Runnable() {
             public void run() {
                 if (Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null) {
                     String url = getIntent().getData().toString();
+                    currentURL = url;
 
                     try {
                         final Artikel artikel = API.getArticle(url);
                         currentArtikel = artikel;
+                        initUI(artikel);
+
+                    } catch (Exception z) {
+                        z.printStackTrace();
                         runOnUiThread(new Runnable() {
                             public void run() {
+                                switchState(STATE_ERROR);
+                            }
+                        });
+                    }
+                } else
+                    throw new InvalidParameterException("Didn't pass a uri to open");
+            }
+        }).start();
+    }
 
-                                //Deze laten we nog even liggen, cool idee maar niet echt praktisch
+    void initUI(final Artikel artikel) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+
+                //Deze laten we nog even liggen, cool idee maar niet echt praktisch
 
 //                                if(artikel.groot_plaatje) {
 //                                    BitmapDrawable bitmap = new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(artikel.plaatje, 0, artikel.plaatje.length));
@@ -118,51 +131,44 @@ public class Article extends Base {
 ////                                    header.getLayoutParams().height = Math.round(bitmap.getMinimumHeight() * ratio);
 //                                }
 
-                                ListView comments = (ListView) findViewById(R.id.show);
+                ListView comments = (ListView) findViewById(R.id.show);
 
+                ActionBar bar = getSupportActionBar();
+                bar.setDisplayHomeAsUpEnabled(true);
+                bar.setTitle(artikel.titel);
 
-                                ActionBar bar = getSupportActionBar();
-                                bar.setDisplayHomeAsUpEnabled(true);
-                                bar.setTitle(artikel.titel);
+                View header = getLayoutInflater().inflate(R.layout.blog_item, null);
+                //even artikeladapter lenen hiervoor, geen zin om die shit weer opnieuw te schrijven
+                ArtikelAdapter.fillView(header, artikel, Article.this, false);
+                comments.addHeaderView(header);
 
-                                View header = getLayoutInflater().inflate(R.layout.blog_item, null);
-                                //even artikeladapter lenen hiervoor, geen zin om die shit weer opnieuw te schrijven
-                                ArtikelAdapter.fillView(header, artikel, Article.this, false);
-                                comments.addHeaderView(header);
+                comments.setAdapter(new CommentAdapter(Article.this, 0, artikel.comments));
 
-                                comments.setAdapter(new CommentAdapter(Article.this, 0, artikel.comments));
-
-                                comments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        new CommentDialog(artikel.comments[position - 1], artikel, activity).show(getSupportFragmentManager(), "CmmntDlg");
-                                    }
-                                });
-
-                                final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
-                                ActionBarPullToRefresh.from(Article.this)
-                                        .allChildrenArePullable()
-                                        .listener(new OnRefreshListener() {
-                                            public void onRefreshStarted(View view) {
-
-                                            }
-                                        })
-                                        .setup(mPullToRefreshLayout);
-
-                                switchState(STATE_SHOW);
-                            }
-                        });
-                    } catch (Exception z) {
-                        z.printStackTrace();
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                switchState(STATE_ERROR);
-                            }
-                        });
+                comments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        new CommentDialog(artikel.comments[position - 1], artikel, Article.this).show(getSupportFragmentManager(), "CmmntDlg");
                     }
-                } else
-                    throw new InvalidParameterException("Didn't pass a uri to open");
+                });
+
+                final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+                ActionBarPullToRefresh.from(Article.this)
+                        .allChildrenArePullable()
+                        .listener(new OnRefreshListener() {
+                            public void onRefreshStarted(View view) {
+                                try {
+                                    final Artikel artikel = API.getArticle(currentURL);
+                                    currentArtikel = artikel;
+                                    initUI(artikel);
+                                } catch (Exception z) {
+                                    Crouton.makeText(Article.this, z.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                }
+                            }
+                        })
+                        .setup(mPullToRefreshLayout);
+
+                switchState(STATE_SHOW);
             }
-        }).start();
+        });
     }
 
     @Override
@@ -189,7 +195,7 @@ public class Article extends Base {
                 if (currentArtikel != null) data = currentArtikel.titel + " (" + data + ")";
                 sendIntent.putExtra(Intent.EXTRA_TEXT, data + " - via GeenStijl Reader http://is.gd/gsreader");
                 sendIntent.setType("text/plain");
-                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_with_friends)));
+                startActivity(Intent.createChooser(sendIntent, getString(R.string.share_with_friends)));
                 return true;
             case R.id.action_reply:
                 //todo mogelijke nullpointer als je reply klikt voordat het artikel geladen is

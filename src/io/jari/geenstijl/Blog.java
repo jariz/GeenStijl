@@ -29,6 +29,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Adapters.ArtikelAdapter;
@@ -62,54 +64,6 @@ public class Blog extends Base {
         final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
         final ListView show = (ListView)findViewById(R.id.show);
 
-        final Runnable initMoreButton = new Runnable() {
-            @Override
-            public void run() {
-                //footer
-                View footer = getLayoutInflater().inflate(R.layout.meerrr, null);
-                final View button = footer.findViewById(R.id.more);
-                if(Build.VERSION.SDK_INT >= 19) {
-                    SystemBarTintManager tintManager = new SystemBarTintManager(thiz);
-                    ViewGroup.LayoutParams params = button.getLayoutParams();
-                    SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
-                    ((ViewGroup.MarginLayoutParams)params).bottomMargin = config.getPixelInsetBottom();
-                }
-                button.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        button.setEnabled(false);
-                        mPullToRefreshLayout.setRefreshing(true);
-                        new Thread(new Runnable() {
-                            public void run() {
-                                try {
-                                    final Artikel[] artikelen2 = API.getArticles(true, true, getApplicationContext());
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            ListView show = (ListView) findViewById(R.id.show);
-                                            //java is such a beautiful language *cough*
-                                            ArtikelAdapter artikelAdapter = (ArtikelAdapter)((HeaderViewListAdapter)show.getAdapter()).getWrappedAdapter();
-                                            artikelAdapter.update(artikelen2);
-                                            mPullToRefreshLayout.setRefreshComplete();
-                                            button.setVisibility(View.GONE);
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    Log.w(TAG, "Catched exception, going to error state.");
-                                    e.printStackTrace();
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            switchState(STATE_ERROR);
-                                        }
-                                    });
-                                }
-                            }
-                        }).start();
-
-                    }
-                });
-                show.addFooterView(footer);
-            }
-        };
-
         // Now setup the PullToRefreshLayout
         ActionBarPullToRefresh.from(this)
                 .allChildrenArePullable()
@@ -119,23 +73,10 @@ public class Blog extends Base {
                             public void run() {
                                 try {
                                     final Artikel[] artikelen = API.getArticles(true, false, getApplicationContext());
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            show.setScrollingCacheEnabled(false);
-                                            show.setAdapter(new ArtikelAdapter(thiz, 0, artikelen));
-                                            initMoreButton.run();
-                                            mPullToRefreshLayout.setRefreshComplete();
-                                        }
-                                    });
-
+                                    initUI(artikelen);
                                 } catch (Exception e) {
-                                    Log.w(TAG, "Catched exception, going to error state.");
                                     e.printStackTrace();
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            switchState(STATE_ERROR);
-                                        }
-                                    });
+                                    Crouton.makeText(Blog.this, e.getMessage(), Style.ALERT, R.id.ptr_layout).show();
                                 }
                             }
                         }).start();
@@ -147,20 +88,8 @@ public class Blog extends Base {
             public void run() {
                 try {
                     final Artikel[] artikelen = API.getArticles(false, false, getApplicationContext());
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            ListView show = (ListView)findViewById(R.id.show);
-                            show.setScrollingCacheEnabled(false);
-                            show.setAdapter(new ArtikelAdapter(thiz, 0, artikelen));
-                            initMoreButton.run();
-
-                            //grreat success!
-                            switchState(STATE_SHOW);
-                        }
-                    });
-
+                    initUI(artikelen);
                 } catch (Exception e) {
-                    Log.w(TAG, "Catched exception, going to error state.");
                     e.printStackTrace();
                     runOnUiThread(new Runnable() {
                         public void run() {
@@ -170,7 +99,61 @@ public class Blog extends Base {
                 }
             }
         }).start();
+    }
 
+    void initUI(final Artikel[] artikelen) {
+        final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
+        final ListView show = (ListView)findViewById(R.id.show);
+        runOnUiThread(new Runnable() {
+            public void run() {
+                ListView show = (ListView)findViewById(R.id.show);
+                show.setScrollingCacheEnabled(false);
+                show.setAdapter(new ArtikelAdapter(Blog.this, 0, artikelen));
+                //footer
+                if(show.getAdapter().getClass() != HeaderViewListAdapter.class) { //check if footer is present, if not, add it
+                    View footer = getLayoutInflater().inflate(R.layout.meerrr, null);
+                    final View button = footer.findViewById(R.id.more);
+                    if(Build.VERSION.SDK_INT >= 19) {
+                        SystemBarTintManager tintManager = new SystemBarTintManager(Blog.this);
+                        ViewGroup.LayoutParams params = button.getLayoutParams();
+                        SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+                        ((ViewGroup.MarginLayoutParams)params).bottomMargin = config.getPixelInsetBottom();
+                    }
+                    button.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            button.setEnabled(false);
+                            mPullToRefreshLayout.setRefreshing(true);
+                            new Thread(new Runnable() {
+                                public void run() {
+                                    try {
+                                        final Artikel[] artikelen2 = API.getArticles(true, true, getApplicationContext());
+                                        runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                ListView show = (ListView) findViewById(R.id.show);
+                                                //java is such a beautiful language *cough*
+                                                ArtikelAdapter artikelAdapter = (ArtikelAdapter)((HeaderViewListAdapter)show.getAdapter()).getWrappedAdapter();
+                                                artikelAdapter.update(artikelen2);
+                                                mPullToRefreshLayout.setRefreshComplete();
+                                                button.setVisibility(View.GONE);
+                                            }
+                                        });
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        Crouton.makeText(Blog.this, e.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                    }
+                                }
+                            }).start();
+
+                        }
+                    });
+                    show.addFooterView(footer);
+                }
+
+
+                //grreat success!
+                switchState(STATE_SHOW);
+            }
+        });
     }
 
     @Override
