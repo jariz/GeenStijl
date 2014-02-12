@@ -54,7 +54,9 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
+import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -109,6 +111,8 @@ public class Article extends Base {
         }).start();
     }
 
+    View header;
+
     void initUI(final Artikel artikel) {
         runOnUiThread(new Runnable() {
             public void run() {
@@ -133,13 +137,17 @@ public class Article extends Base {
 
                 ListView comments = (ListView) findViewById(R.id.show);
 
+                if(Article.this.header != null)
+                    comments.removeHeaderView(Article.this.header);
+
                 ActionBar bar = getSupportActionBar();
                 bar.setDisplayHomeAsUpEnabled(true);
                 bar.setTitle(artikel.titel);
 
-                View header = getLayoutInflater().inflate(R.layout.blog_item, null);
+                View header = Article.this.header = getLayoutInflater().inflate(R.layout.blog_item, null);
                 //even artikeladapter lenen hiervoor, geen zin om die shit weer opnieuw te schrijven
                 ArtikelAdapter.fillView(header, artikel, Article.this, false);
+
                 comments.addHeaderView(header);
 
                 comments.setAdapter(new CommentAdapter(Article.this, 0, artikel.comments));
@@ -156,11 +164,34 @@ public class Article extends Base {
                         .listener(new OnRefreshListener() {
                             public void onRefreshStarted(View view) {
                                 try {
-                                    final Artikel artikel = API.getArticle(currentURL);
-                                    currentArtikel = artikel;
-                                    initUI(artikel);
-                                } catch (Exception z) {
-                                    Crouton.makeText(Article.this, z.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                    new Thread(new Runnable() {
+                                        public void run() {
+                                            Artikel artikel = null;
+                                            try {
+                                                artikel = API.getArticle(currentURL);
+                                            } catch (final Exception e) {
+                                                e.printStackTrace();
+                                                runOnUiThread(new Runnable() {
+                                                    public void run() {
+                                                        mPullToRefreshLayout.setRefreshComplete();
+                                                        Crouton.makeText(Article.this, e.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                                    }
+                                                });
+                                            }
+                                            if (artikel != null) {
+                                                currentArtikel = artikel;
+                                                initUI(artikel);
+                                            }
+                                        }
+                                    }).start();
+                                } catch (final Exception z) {
+                                    z.printStackTrace();
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            mPullToRefreshLayout.setRefreshComplete();
+                                            Crouton.makeText(Article.this, z.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                        }
+                                    });
                                 }
                             }
                         })
