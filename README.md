@@ -9,13 +9,15 @@ De app is volledig open source en - natuurlijk - gratis.
 <b>Features:</b>  
 ● Geïnspireerd door Google Now  
 ● Volgt Android-richtlijnen  
-● Android 2.3.3 supported. (ondanks gebruik van de nieuwste android features)     
+● Inloggen  
 ● Reaguursels bekijken  
 ● Reaguursels +1/-1en  
+● Reaguursels plaatsen  
 ● Opent GeenStijl artikel links  
-● Transparent navigatie/statusbar op Android KitKat   
-● Pull to refresh    
-
+● Transparent navigatie/statusbar op Android KitKat  
+● Android 2.3.3 supported. (ondanks gebruik van de nieuwste android features)  
+● Pull to refresh  
+  
 <a href="http://play.google.com/store/apps/details?id=io.jari.geenstijl"><img src="https://developer.android.com/images/brand/en_app_rgb_wo_60.png"></a>
 
 <b>Links</b>  
