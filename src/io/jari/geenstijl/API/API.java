@@ -346,6 +346,11 @@ public class API {
      */
 
     static String downloadString(String url) throws IOException {
+        if(url.startsWith("//")) {
+            url = "http:" + url;
+        } else if(url.startsWith("://")) {
+            url = "http" + url;
+        }
         URLConnection con = new URL(url).openConnection();
         InputStream in = con.getInputStream();
         String encoding = con.getContentEncoding();
