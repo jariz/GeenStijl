@@ -337,8 +337,14 @@ public class API {
      * Expires in 30 mins.
      */
     private static void setCache(Artikel[] artikels, Context context) {
-        SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
-        preferences.edit().putString("items", SerializeObject.objectToString(artikels)).putLong("items_age", Calendar.getInstance().getTimeInMillis()).commit();
+        try {
+            SharedPreferences preferences = context.getSharedPreferences("geenstijl", 0);
+            preferences.edit().putString("items", SerializeObject.objectToString(artikels)).putLong("items_age", Calendar.getInstance().getTimeInMillis()).commit();
+        }
+        catch(OutOfMemoryError kutTelefoon) {
+            kutTelefoon.printStackTrace();
+            Log.e(TAG, "Unable to cache data due to memory errors (get a better phone!), App will download data every time it starts.");
+        }
     }
 
     /*
