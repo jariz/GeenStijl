@@ -58,6 +58,7 @@
             android:visibility="gone"
             android:paddingTop="20dp"
             android:clipToPadding="false"
+            android:descendantFocusability="blocksDescendants"
             />
 
     </uk.co.senab.actionbarpulltorefresh.extras.actionbarsherlock.PullToRefreshLayout>

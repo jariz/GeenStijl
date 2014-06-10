@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog bulletedList="true">
+
+    <changelogversion versionName="0.5" changeDate="?? Mei, 2014">
+        <changelogtext>[b]Nieuw:[/b] Changelog dialoog</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Sliding menu</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Support voor GeenStijl.TV</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Opties</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Lettergrootte veranderen</changelogtext>
+        <changelogtext>Inloggen verplaatst naar sliding menu</changelogtext>
+        <changelogtext>Punten verwijderd aangezien GeenStijl dit niet meer heeft.</changelogtext>
+    </changelogversion>
+
+    <changelogversion versionName="0.4.1-hotfix" changeDate="13 Maart, 2014">
+        <changelogtext>Out of memory errors opgelost voor telefoons met lage specs</changelogtext>
+        <changelogtext>URL's zonder protocol fixed</changelogtext>
+    </changelogversion>
+
+    <changelogversion versionName="0.4" changeDate="15 Januari, 2014">
+        <changelogtext>[b]Nieuw:[/b] Reageren op artikelen</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Inloggen</changelogtext>
+        <changelogtext>Tijdweergave verbeterd</changelogtext>
+        <changelogtext>Userfriendly errors</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Artikelen refreshen</changelogtext>
+    </changelogversion>
+
+</changelog>

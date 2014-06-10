@@ -17,10 +17,17 @@
 package io.jari.geenstijl;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HeaderViewListAdapter;
@@ -36,6 +43,7 @@ import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Adapters.ArtikelAdapter;
 import io.jari.geenstijl.Dialogs.ConfirmLogoutDialog;
 import io.jari.geenstijl.Dialogs.LoginDialog;
+import it.gmariotti.changelibs.library.view.ChangeLogListView;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -104,6 +112,38 @@ public class Blog extends Base {
                 }
             }
         }).start();
+
+        //do changelog stuff
+        SharedPreferences sPref = this.getSharedPreferences("geenstijl", 0);
+        int version = 0;
+        try {
+            version = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException ignored) {}
+
+        //is changelog already read
+        if(!sPref.getBoolean("changelog-"+version, false)) {
+            //set changelog to read
+            sPref.edit().putBoolean("changelog-"+version, true).commit();
+
+            //show dialog
+            LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(
+                    Context.LAYOUT_INFLATER_SERVICE);
+            ChangeLogListView chgList=(ChangeLogListView)layoutInflater.inflate(R.layout.changelog, null);
+
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.changelog_title)
+                    .setView(chgList)
+                    .setPositiveButton(android.R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    dialog.dismiss();
+                                }
+                            }
+                    )
+                    .create()
+                    .show();
+        }
+
     }
 
     void initUI(final Artikel[] artikelen, final boolean doSwitchState) {

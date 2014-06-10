@@ -27,6 +27,7 @@
     <string name="reply_error">Reply failed, retry or login again.</string>
     <string name="loggedin">Welcome, %s!</string>
     <string name="reply_success">Your comment was successfully posted.</string>
+    <string name="changelog_title">New version!</string>
 
     <string name="ago">\u0020ago</string>
     <string name="year">year</string>
