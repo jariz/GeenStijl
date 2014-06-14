@@ -60,8 +60,8 @@ public class CommentAdapter extends ArrayAdapter<Comment> implements ListAdapter
             item = context.getLayoutInflater().inflate(R.layout.article_comment, null);
 
         ((TextView)item.findViewById(R.id.author)).setText(comment.auteur);
-        if(comment.score == null) comment.score = 0;
-        ((TextView)item.findViewById(R.id.score)).setText(Integer.toString(comment.score));
+//        if(comment.score == null) comment.score = 0;
+//        ((TextView)item.findViewById(R.id.score)).setText(Integer.toString(comment.score));
         ((TextView)item.findViewById(R.id.timespan)).setText(RRTime.formatDurationMs(new Date().getTime() - comment.datum.getTime(), context) + context.getResources().getString(R.string.ago));
         TextView cntnt = ((TextView)item.findViewById(R.id.content));
         cntnt.setText(Html.fromHtml(comment.inhoud));

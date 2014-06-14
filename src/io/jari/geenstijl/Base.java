@@ -16,6 +16,8 @@
 
 package io.jari.geenstijl;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,18 +44,39 @@ public class Base extends SherlockFragmentActivity {
     int STATE_LOADING = 2;
     int STATE_SHOW = 3;
 
+    String errorMessage = "Er is een fout opgetreden tijdens het ophalen van de fout...";
+
+    SystemBarTintManager tintManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //are you #bebebe?
         if(Build.VERSION.SDK_INT >= 19) {
-            SystemBarTintManager tintManager = new SystemBarTintManager(this);
-            tintManager.setTintColor(getResources().getColor(R.color.geenstijl));
+            this.tintManager = new SystemBarTintManager(this);
+            tintManager.setStatusBarTintResource(R.color.geenstijl);
+            tintManager.setStatusBarAlpha(1f);
             tintManager.setStatusBarTintEnabled(true);
         }
 
         getSupportActionBar().setIcon(R.drawable.icon);
+
+        //set error button click handler
+        findViewById(R.id.error_button).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new AlertDialog.Builder(Base.this)
+                        .setTitle(R.id.error_button)
+                        .setMessage(errorMessage)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+        });
     }
 
     void switchState(int state) {

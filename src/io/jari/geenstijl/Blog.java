@@ -16,22 +16,23 @@
 
 package io.jari.geenstijl;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HeaderViewListAdapter;
-import android.widget.ListView;
+import android.widget.*;
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -48,29 +49,93 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class Blog extends Base {
     String TAG = "GS.MAIN";
+    ActionBarDrawerToggle drawerToggle;
+    DrawerLayout drawerLayout;
 
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        final Activity thiz = this;
-
         setContentView(R.layout.blog);
 
-        //#HOLOYOLO
-        if(Build.VERSION.SDK_INT >= 19) {
-            SystemBarTintManager tintManager = new SystemBarTintManager(this);
-            ViewGroup.LayoutParams params = findViewById(R.id.ptr_layout).getLayoutParams();
-            //jariz's home made actionbar hack!
-            SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
-            ((ViewGroup.MarginLayoutParams)params).topMargin = config.getPixelInsetTop(true);
-        }
+        super.onCreate(savedInstanceState);
 
+        actionBar = getSupportActionBar();
         final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
-        final ListView show = (ListView)findViewById(R.id.show);
+
+        View drawer = findViewById(R.id.left_drawer);
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+//            @Override
+//            public void onDrawerOpened(View drawerView) {
+//                super.onDrawerOpened(drawerView);
+//                enableImmersive(false, drawerView);
+//            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                super.onDrawerStateChanged(newState);
+                enableImmersive(false, drawerLayout);
+            }
+
+//            @Override
+//            public void onDrawerClosed(View drawerView) {
+//                super.onDrawerClosed(drawerView);
+//                enableImmersive(false, drawerView);
+//            }
+        };
+        drawerLayout.setDrawerListener(drawerToggle);
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+
+        if(Build.VERSION.SDK_INT >= 19) {
+            SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+            drawer.setPadding(drawer.getPaddingLeft(), drawer.getPaddingTop() + config.getPixelInsetTop(true), drawer.getPaddingRight(), drawer.getPaddingBottom());
+        }
+        ListView siteSwitch = (ListView)drawer.findViewById(R.id.site_switcher);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, R.id.wrap_text, new String[] {"GeenStijl.nl", "GeenStijl.tv"});
+        siteSwitch.setAdapter(arrayAdapter);
+        siteSwitch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch(position) {
+                    case 0:
+                        API.setDomain("www.geenstijl.nl", Blog.this);
+                        break;
+                    case 1:
+                        API.setDomain("www.geenstijl.tv", Blog.this);
+                        break;
+                }
+
+                forceNoImmersive = true;
+                enableImmersive(false, drawerLayout);
+                drawerLayout.closeDrawers();
+                mPullToRefreshLayout.setRefreshing(true);
+                new Thread(new Runnable() {
+                    public void run() {
+                        forceNoImmersive = true;
+                        try {
+                            final Artikel[] artikelen = API.getArticles(true, false, getApplicationContext());
+                            initUI(artikelen, false);
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    mPullToRefreshLayout.setRefreshComplete();
+                                    forceNoImmersive = false;
+                                }
+                            });
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    forceNoImmersive = false;
+                                    mPullToRefreshLayout.setRefreshComplete();
+                                    Crouton.makeText(Blog.this, e.getLocalizedMessage() == null ? "Onbekende fout" : e.getLocalizedMessage(), Style.ALERT).show();
+                                }
+                            });
+                        }
+                    }
+                }).start();
+            }
+        });
 
         // Now setup the PullToRefreshLayout
         ActionBarPullToRefresh.from(this)
@@ -79,6 +144,7 @@ public class Blog extends Base {
                     public void onRefreshStarted(View view) {
                         new Thread(new Runnable() {
                             public void run() {
+                                forceNoImmersive = true;
                                 try {
                                     final Artikel[] artikelen = API.getArticles(true, false, getApplicationContext());
                                     initUI(artikelen, false);
@@ -86,8 +152,9 @@ public class Blog extends Base {
                                     e.printStackTrace();
                                     runOnUiThread(new Runnable() {
                                         public void run() {
+                                            forceNoImmersive = false;
                                             mPullToRefreshLayout.setRefreshComplete();
-                                            Crouton.makeText(Blog.this, e.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                            Crouton.makeText(Blog.this, e.getLocalizedMessage() == null ? "Onbekende fout" : e.getLocalizedMessage(), Style.ALERT).show();
                                         }
                                     });
                                 }
@@ -102,10 +169,11 @@ public class Blog extends Base {
                 try {
                     final Artikel[] artikelen = API.getArticles(false, false, getApplicationContext());
                     initUI(artikelen, true);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     e.printStackTrace();
                     runOnUiThread(new Runnable() {
                         public void run() {
+                            errorMessage = e.getMessage();
                             switchState(STATE_ERROR);
                         }
                     });
@@ -146,20 +214,105 @@ public class Blog extends Base {
 
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        drawerToggle.syncState();
+    }
+
+    boolean forceNoImmersive = false;
+
+    ActionBar actionBar;
+
+    @SuppressLint("NewApi")
+    void enableImmersive(boolean immersive, View view) {
+
+        if(immersive && !forceNoImmersive) {
+            if(Build.VERSION.SDK_INT >= 19) {
+                tintManager.setStatusBarAlpha(0.5f);
+                view.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE);
+            }
+            actionBar.hide();
+        } else {
+            if(Build.VERSION.SDK_INT >= 19) {
+                tintManager.setStatusBarAlpha(1f);
+                view.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            }
+
+            actionBar.show();
+        }
+    }
+
+    int showTopPadding = 0;
     void initUI(final Artikel[] artikelen, final boolean doSwitchState) {
         final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
-        final ListView show = (ListView)findViewById(R.id.show);
         runOnUiThread(new Runnable() {
             public void run() {
-                ListView show = (ListView) findViewById(R.id.show);
+                ListView siteSwitch = (ListView)findViewById(R.id.site_switcher);
+                String domain = getSharedPreferences("geenstijl", 0).getString("gsdomain", "www.geenstijl.nl");
+                if(domain.equals("www.geenstijl.nl")) {
+                    actionBar.setTitle("GeenStijl");
+                    siteSwitch.setItemChecked(0, true);
+                }
+                else {
+                    actionBar.setTitle("GeenStijl.TV");
+                    siteSwitch.setItemChecked(1, true);
+                }
+
+                final ListView show = (ListView) findViewById(R.id.show);
+                if(showTopPadding == 0) showTopPadding = show.getPaddingTop();
                 show.setScrollingCacheEnabled(false);
                 show.setAdapter(new ArtikelAdapter(Blog.this, 0, artikelen));
+
+                //#HOLOYOLO
+                if(Build.VERSION.SDK_INT >= 19) {
+                    ViewGroup.LayoutParams params = show.getLayoutParams();
+                    //jariz's home made actionbar hack!
+                    SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+                    show.setPadding(0, showTopPadding + config.getPixelInsetTop(true), 0, 0);
+                }
+
+                //hiding the actionbar when scrolling
+                show.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    int mLastFirstVisibleItem = 0;
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    }
+
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        if (view.getId() == show.getId()) {
+                            final int currentFirstVisibleItem = show.getFirstVisiblePosition();
+
+                            if (currentFirstVisibleItem > mLastFirstVisibleItem && actionBar.isShowing()) {
+                                enableImmersive(true, show);
+                            } else if (currentFirstVisibleItem < mLastFirstVisibleItem && !actionBar.isShowing()) {
+                                enableImmersive(false, show);
+                            }
+
+                            mLastFirstVisibleItem = currentFirstVisibleItem;
+                        }
+                    }
+                });
+
                 //footer
                 if (show.getAdapter().getClass() != HeaderViewListAdapter.class) { //check if footer is present, if not, add it
                     View footer = getLayoutInflater().inflate(R.layout.meerrr, null);
                     final View button = footer.findViewById(R.id.more);
                     if (Build.VERSION.SDK_INT >= 19) {
-                        SystemBarTintManager tintManager = new SystemBarTintManager(Blog.this);
                         ViewGroup.LayoutParams params = button.getLayoutParams();
                         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
                         ((ViewGroup.MarginLayoutParams) params).bottomMargin = config.getPixelInsetBottom();
@@ -168,6 +321,8 @@ public class Blog extends Base {
                         public void onClick(View v) {
                             button.setEnabled(false);
                             mPullToRefreshLayout.setRefreshing(true);
+                            enableImmersive(false, show);
+                            forceNoImmersive = true;
                             new Thread(new Runnable() {
                                 public void run() {
                                     try {
@@ -180,6 +335,7 @@ public class Blog extends Base {
                                                 artikelAdapter.update(artikelen2);
                                                 mPullToRefreshLayout.setRefreshComplete();
                                                 button.setVisibility(View.GONE);
+                                                forceNoImmersive = false;
                                             }
                                         });
                                     } catch (final Exception e) {
@@ -188,7 +344,8 @@ public class Blog extends Base {
                                             public void run() {
                                                 button.setEnabled(true);
                                                 mPullToRefreshLayout.setRefreshComplete();
-                                                Crouton.makeText(Blog.this, e.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                                forceNoImmersive = false;
+                                                Crouton.makeText(Blog.this, e.getLocalizedMessage() == null ? "Onbekende fout" : e.getLocalizedMessage(), Style.ALERT).show();
                                             }
                                         });
                                     }
@@ -221,6 +378,12 @@ public class Blog extends Base {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            case android.R.id.home:
+                View drawer = findViewById(R.id.left_drawer);
+                if(!drawerLayout.isDrawerOpen(drawer))
+                    drawerLayout.openDrawer(drawer);
+                else drawerLayout.closeDrawer(drawer);
+                break;
             case R.id.action_login:
                 new LoginDialog(this).show(getSupportFragmentManager(), "LgnDg");
                 return true;

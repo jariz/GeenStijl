@@ -37,6 +37,7 @@ import io.jari.geenstijl.R;
  * Time: 21:07
  * Author: JariZ
  */
+@Deprecated
 public class CommentDialog extends DialogFragment {
 
     public CommentDialog(Comment comment, Artikel article, Activity activity) {
@@ -62,11 +63,11 @@ public class CommentDialog extends DialogFragment {
                         String direction = "";
                         switch (which) {
                             case 0:
-                                comment.score += 1;
+//                                comment.score += 1;
                                 direction = "+1";
                                 break;
                             case 1:
-                                comment.score -= 1;
+//                                comment.score -= 1;
                                 direction = "-1";
                                 break;
                         }

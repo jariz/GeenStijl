@@ -21,22 +21,22 @@
                 android:id="@+id/author"
                 android:textSize="13sp" android:layout_marginRight="10dp"/>
 
-        <com.devspark.robototextview.widget.RobotoTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="100"
-                app:typeface="roboto_bold"
-                android:textColor="#333"
-                android:id="@+id/score"
-                android:textSize="13sp" android:layout_marginRight="5dp"/>
+        <!--<com.devspark.robototextview.widget.RobotoTextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="100"-->
+                <!--app:typeface="roboto_bold"-->
+                <!--android:textColor="#333"-->
+                <!--android:id="@+id/score"-->
+                <!--android:textSize="13sp" android:layout_marginRight="5dp"/>-->
 
-        <com.devspark.robototextview.widget.RobotoTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/score"
-                app:typeface="roboto_regular"
-                android:textColor="#333"
-                android:textSize="13sp" android:layout_marginRight="10dp"/>
+        <!--<com.devspark.robototextview.widget.RobotoTextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/score"-->
+                <!--app:typeface="roboto_regular"-->
+                <!--android:textColor="#333"-->
+                <!--android:textSize="13sp" android:layout_marginRight="10dp"/>-->
 
         <com.devspark.robototextview.widget.RobotoTextView
                 android:layout_width="wrap_content"

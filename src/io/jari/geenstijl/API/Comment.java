@@ -29,5 +29,5 @@ public class Comment {
     public Date datum;
     public String inhoud;
     public Integer id;
-    public Integer score;
+//    public Integer score;
 }

@@ -16,31 +16,16 @@
 
 package io.jari.geenstijl;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-//import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -48,16 +33,12 @@ import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Adapters.ArtikelAdapter;
 import io.jari.geenstijl.Adapters.CommentAdapter;
-import io.jari.geenstijl.Dialogs.CommentDialog;
 import io.jari.geenstijl.Dialogs.ReplyDialog;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.text.ParseException;
-import java.util.List;
 
 /**
  * JARI.IO
@@ -70,9 +51,9 @@ public class Article extends Base {
     String currentURL = null;
 
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         setContentView(R.layout.article);
+
+        super.onCreate(savedInstanceState);
 
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
@@ -93,7 +74,7 @@ public class Article extends Base {
                     currentURL = url;
 
                     try {
-                        final Artikel artikel = API.getArticle(url);
+                        final Artikel artikel = API.getArticle(url, Article.this);
                         currentArtikel = artikel;
                         initUI(artikel);
 
@@ -152,11 +133,11 @@ public class Article extends Base {
 
                 comments.setAdapter(new CommentAdapter(Article.this, 0, artikel.comments));
 
-                comments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        new CommentDialog(artikel.comments[position - 1], artikel, Article.this).show(getSupportFragmentManager(), "CmmntDlg");
-                    }
-                });
+//                comments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                        new CommentDialog(artikel.comments[position - 1], artikel, Article.this).show(getSupportFragmentManager(), "CmmntDlg");
+//                    }
+//                });
 
                 final PullToRefreshLayout mPullToRefreshLayout = (PullToRefreshLayout) findViewById(R.id.ptr_layout);
                 ActionBarPullToRefresh.from(Article.this)
@@ -168,7 +149,7 @@ public class Article extends Base {
                                         public void run() {
                                             Artikel artikel = null;
                                             try {
-                                                artikel = API.getArticle(currentURL);
+                                                artikel = API.getArticle(currentURL, Article.this);
                                             } catch (final Exception e) {
                                                 e.printStackTrace();
                                                 runOnUiThread(new Runnable() {

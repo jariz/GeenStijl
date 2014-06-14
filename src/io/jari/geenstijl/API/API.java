@@ -47,6 +47,12 @@ import java.util.regex.Pattern;
 public class API {
     static String TAG = "GS.API";
 
+
+    public static void setDomain(String domain, Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("geenstijl", 0);
+        sharedPreferences.edit().putString("gsdomain", domain).commit();
+    }
+
     /**
      * Downloads & parses the articles and images
      *
@@ -62,13 +68,15 @@ public class API {
             if (cache != null) return cache;
         }
 
+        domain = context.getSharedPreferences("geenstijl", 0).getString("gsdomain", "www.geenstijl.nl");
+
         ensureCookies();
 
         //we halen onze data van de html versie van geenstijl, omdat de RSS versie pure poep is, en omdat jsoup awesome is
         Document document;
         if (page2)
-            document = Jsoup.connect("http://www.geenstijl.nl/index2.html").get();
-        else document = Jsoup.connect("http://www.geenstijl.nl/").get();
+            document = Jsoup.connect("http://"+domain+"/index2.html").get();
+        else document = Jsoup.connect("http://"+domain+"/").get();
 
         Elements artikelen = document.select("#content>article");
         ArrayList<Artikel> resultaat = new ArrayList<Artikel>();
@@ -84,6 +92,7 @@ public class API {
         return arr_res;
     }
 
+    @Deprecated
     public static boolean vote(Artikel artikel, Comment comment, String direction) {
         try {
             ensureCookies();
@@ -114,6 +123,7 @@ public class API {
         }
     }
 
+    static String domain;
     private static Artikel parseArtikel(Element artikel_el) throws ParseException {
         Artikel artikel = new Artikel();
 
@@ -135,8 +145,9 @@ public class API {
 //                    artikel.plaatje = Drawable.createFromStream(((java.io.InputStream)new URL(plaatje.attr("src")).getContent()), null);
                 artikel.plaatje = readBytes((InputStream) new URL(plaatje.attr("src")).getContent());
                 artikel.groot_plaatje = plaatje.hasClass("groot");
-                if (!plaatje.attr("width").equals("100") || !plaatje.attr("height").equals("100"))
-                    artikel.groot_plaatje = true;
+                if(plaatje.hasAttr("width") && plaatje.hasAttr("height"))
+                    if (!plaatje.attr("width").equals("100") || !plaatje.attr("height").equals("100"))
+                        artikel.groot_plaatje = true;
                 if (artikel.groot_plaatje) Log.i(TAG, "    Done. Big image.");
                 else Log.i(TAG, "    Done.");
             } catch (Exception ex) {
@@ -151,6 +162,20 @@ public class API {
             Element frame = artikel_el.select("div.embed>iframe").first();
             if (frame != null)
                 artikel.embed = frame.attr("src");
+        }
+
+        //embed (geenstijl.tv)
+        if(!domain.equals("www.geenstijl.nl")) {
+            //extract url from script
+            Element scriptEl = artikel_el.select("script").first();
+            if(scriptEl != null) {
+                String script = scriptEl.html();
+                Pattern pattern = Pattern.compile("'(.*)', fall");
+                Matcher matcher = pattern.matcher(script);
+                if(matcher.find() && matcher.groupCount() == 1) {
+                    artikel.embed = matcher.group(1);
+                }
+            }
         }
 
         //footer shit
@@ -187,42 +212,23 @@ public class API {
      * @throws IOException
      * @throws ParseException
      */
-    public static Artikel getArticle(String url) throws IOException, ParseException {
+    public static Artikel getArticle(String url, Context context) throws IOException, ParseException {
         ensureCookies();
+        domain = context.getSharedPreferences("geenstijl", 0).getString("gsdomain", "www.geenstijl.nl");
         Artikel artikel;
-        Log.i(TAG, "GETARTICLE STEP 1/3: Getting/parsing article page & images... " + url);
+        Log.i(TAG, "GETARTICLE STEP 1/2: Getting/parsing article page & images... " + url);
         Document document = Jsoup.connect(url).get();
         Element artikel_el = document.select("#content>article").first();
         artikel = parseArtikel(artikel_el);
 
-        //comment scores
-        String jsurl = document.select("[src*=modlinks]").first().attr("src");
-
-        Log.i(TAG, "GETARTICLE STEP 2/3: Getting scoremods... " + jsurl);
-        String js = downloadString(jsurl);
-
-        Log.i(TAG, "GETARTICLE STEP 3/3: Parsing scores and comments... " + jsurl);
-        Pattern p = Pattern.compile("moderation\\['(\\d+)'\\] = '(-?[0-9]{0,4})';", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-        Matcher m = p.matcher(js);
-        HashMap<Integer, Integer> scores = new HashMap<Integer, Integer>();
-
-        int i = 0;
-        while (m.find()) {
-            i++;
-            Integer int1 = Integer.parseInt(m.group(1));
-            Integer int2 = Integer.parseInt(m.group(2));
-            Log.d(TAG + ".perf", "ScoreParser: Run " + i + " " + int1 + ":" + int2);
-            scores.put(int1, int2);
-        }
-
+        Log.i(TAG, "GETARTICLE STEP 2/2: Parsing comments...");
         ArrayList<Comment> comments = new ArrayList<Comment>();
-        i = 0;
-        Elements comments_el = document.select("#comments>.commentlist>article");
+        int i = 0;
+        Elements comments_el = document.select("#comments article");
         for (Element comment_el : comments_el) {
             i++;
             Comment comment = new Comment();
             comment.id = Integer.parseInt(comment_el.attr("id").substring(1));
-            comment.score = scores.get(comment.id);
             Element footer = comment_el.select("footer").first();
             StringTokenizer footer_items = new StringTokenizer(footer.text(), "|");
             comment.auteur = footer_items.nextToken().trim();

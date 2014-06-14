@@ -28,6 +28,16 @@
                     app:typeface="roboto_condensed_regular"
                     android:layout_gravity="center_horizontal"
                     android:gravity="center"/>
+            <view
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    class="com.devspark.robototextview.widget.RobotoButton"
+                    android:text="@string/error_button"
+                    app:typeface="roboto_medium"
+                    android:layout_gravity="center_horizontal"
+                    android:textAppearance="@android:style/TextAppearance.Small"
+                    android:id="@+id/error_button"
+                    android:layout_marginTop="10dp"/>
         </LinearLayout>
     </FrameLayout>
 
