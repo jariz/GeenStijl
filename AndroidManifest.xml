@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="io.jari.geenstijl"
-          android:versionCode="7"
-          android:versionName="0.4.1 ">
+          android:versionCode="8"
+          android:versionName="0.5">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19"/>
@@ -24,6 +24,10 @@
                       android:host="www.geenstijl.nl"
                       android:path="/"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".Settings">
+        </activity>
+        <activity android:name=".Browser">
         </activity>
         <activity android:name=".Article">
             <intent-filter>

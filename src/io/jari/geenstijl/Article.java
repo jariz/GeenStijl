@@ -155,7 +155,7 @@ public class Article extends Base {
                                                 runOnUiThread(new Runnable() {
                                                     public void run() {
                                                         mPullToRefreshLayout.setRefreshComplete();
-                                                        Crouton.makeText(Article.this, e.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                                        Crouton.makeText(Article.this, e.getMessage(), Style.ALERT).show();
                                                     }
                                                 });
                                             }
@@ -170,7 +170,7 @@ public class Article extends Base {
                                     runOnUiThread(new Runnable() {
                                         public void run() {
                                             mPullToRefreshLayout.setRefreshComplete();
-                                            Crouton.makeText(Article.this, z.getMessage(), Style.ALERT, R.id.ptr_layout).show();
+                                            Crouton.makeText(Article.this, z.getMessage(), Style.ALERT).show();
                                         }
                                     });
                                 }
@@ -210,8 +210,6 @@ public class Article extends Base {
                 startActivity(Intent.createChooser(sendIntent, getString(R.string.share_with_friends)));
                 return true;
             case R.id.action_reply:
-                //todo mogelijke nullpointer als je reply klikt voordat het artikel geladen is
-                //todo betere oplossing lol (btn disablen?)
                 if (currentArtikel == null) return true;
                 new ReplyDialog(this, currentArtikel).show(getSupportFragmentManager(), "RplDg");
                 return true;

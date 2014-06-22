@@ -5,9 +5,6 @@
         <item name="android:layout_marginRight">20dp</item>
         <item name="android:layout_marginBottom">20dp</item>
         <item name="android:background">@drawable/card_bg</item>
-        <!--<item name="android:paddingTop">10dp</item>-->
-        <!--<item name="android:paddingRight">10dp</item>-->
-        <!--<item name="android:paddingBottom">0dp</item>-->
     </style>
 
     <style name="Theme.Geenstijl.CardHolder" parent="@android:style/Widget.ListView">
@@ -18,17 +15,5 @@
         <item name="android:listSelector">@android:color/transparent</item>
         <item name="android:paddingTop">20dip</item>
         <item name="android:clipToPadding">false</item>
-    </style>
-
-    <style name="Theme.Geenstijl.Card.Action" parent="@android:style/Widget.Button">
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:cacheColorHint">@color/geenstijl</item>
-        <item name="android:background">@drawable/action_bg</item>
-        <item name="android:textColor">@color/blog_item_action_label_color</item>
-        <item name="android:gravity">left</item>
-        <item name="android:padding">16dp</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>
-        <item name="android:textAppearance">@android:style/TextAppearance</item>
     </style>
 </resources>

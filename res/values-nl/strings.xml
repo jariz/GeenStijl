@@ -28,6 +28,29 @@
     <string name="loggedin">Welkom, %s!</string>
     <string name="reply_success">Je reactie is geplaatst!</string>
     <string name="changelog_title">Nieuwe versie!</string>
+    <string name="sectionheader_site">SITE</string>
+    <string name="sectionheader_account">ACCOUNT</string>
+    <string name="sectionheader_app">APP</string>
+    <string name="drawer_open">Open drawer</string>
+    <string name="drawer_close">Sluit drawer</string>
+
+    <string name="lnterface">Interface</string>
+    <string name="network">Netwerk</string>
+    <string name="hide_actionbar">Actionbar verbergen</string>
+    <string name="hide_actionbar_expl">Actionbar verbergen als er naar beneden word gescrolled.</string>
+    <string name="show_images">Afbeeldingen weergeven</string>
+    <string name="show_images_expl">Als je dit uitschakelt, bespaar je data verbruik en versnel je (mogelijk) laadtijden.</string>
+    <string name="textsize">Tekstgrootte</string>
+    <string name="textsize_expl">Verander de tekst grootte</string>
+
+    <string name="about_desc">GeenStijl reader is gratis opensource software. Dit betekent dat de broncode door iedereen te bekijken is en aan te passen. Voor meer informatie zie de <a href='https://github.com/jariz/GeenStijl'>project pagina op GitHub.</a></string>
+    <string name="about_jariz">JariZ</string>
+    <string name="about_createdby">Gemaakt door:</string>
+    <string name="about_version">Versie\u0020</string>
+    <string name="about_reader">GeenStijl Reader</string>
+
+    <string name="options">Instellingen</string>
+    <string name="about">Over</string>
 
     <string name="ago">\u0020geleden</string>
     <string name="year">jaar</string>

@@ -17,15 +17,17 @@
 package io.jari.geenstijl;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
@@ -33,8 +35,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -42,6 +42,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Adapters.ArtikelAdapter;
+import io.jari.geenstijl.Dialogs.AboutDialog;
 import io.jari.geenstijl.Dialogs.ConfirmLogoutDialog;
 import io.jari.geenstijl.Dialogs.LoginDialog;
 import it.gmariotti.changelibs.library.view.ChangeLogListView;
@@ -65,23 +66,11 @@ public class Blog extends Base {
         View drawer = findViewById(R.id.left_drawer);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
-//            @Override
-//            public void onDrawerOpened(View drawerView) {
-//                super.onDrawerOpened(drawerView);
-//                enableImmersive(false, drawerView);
-//            }
-
             @Override
             public void onDrawerStateChanged(int newState) {
                 super.onDrawerStateChanged(newState);
                 enableImmersive(false, drawerLayout);
             }
-
-//            @Override
-//            public void onDrawerClosed(View drawerView) {
-//                super.onDrawerClosed(drawerView);
-//                enableImmersive(false, drawerView);
-//            }
         };
         drawerLayout.setDrawerListener(drawerToggle);
 
@@ -136,6 +125,24 @@ public class Blog extends Base {
                 }).start();
             }
         });
+
+        ListView applist = (ListView)findViewById(R.id.applist);
+        applist.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, R.id.wrap_text, new String[] { getResources().getString(R.string.options), getResources().getString(R.string.about) }));
+        applist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch(position) {
+                    case 0:
+                        startActivity(new Intent(Intent.ACTION_VIEW, null, Blog.this, Settings.class));
+                        break;
+                    case 1:
+                        new AboutDialog(Blog.this).show(getSupportFragmentManager(), "AbtDlg");
+                        break;
+                }
+                drawerLayout.closeDrawers();
+            }
+        });
+
+        reloadDrawer();
 
         // Now setup the PullToRefreshLayout
         ActionBarPullToRefresh.from(this)
@@ -214,6 +221,34 @@ public class Blog extends Base {
 
     }
 
+    public void reloadDrawer() {
+        ListView accountList = (ListView)findViewById(R.id.login);
+        TextView sectionheader = (TextView)findViewById(R.id.sectionheader_account);
+        if(API.loggedIn(this)) {
+            sectionheader.setText(API.getUsername(this).toUpperCase());
+            ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, R.id.wrap_text, new String[] {getResources().getString(R.string.logout)});
+            accountList.setAdapter(accountAdapter);
+
+            accountList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    drawerLayout.closeDrawers();
+                    new ConfirmLogoutDialog(Blog.this).show(getSupportFragmentManager(), "LgtCnfrmDg");
+                }
+            });
+        } else {
+            ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, R.id.wrap_text, new String[] {getResources().getString(R.string.login)});
+            accountList.setAdapter(accountAdapter);
+            sectionheader.setText(R.string.sectionheader_account);
+
+            accountList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    drawerLayout.closeDrawers();
+                    new LoginDialog(Blog.this).show(getSupportFragmentManager(), "LgnDg");
+                }
+            });
+        }
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -233,6 +268,7 @@ public class Blog extends Base {
 
     @SuppressLint("NewApi")
     void enableImmersive(boolean immersive, View view) {
+        if(!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hide_actionbar", true)) return;
 
         if(immersive && !forceNoImmersive) {
             if(Build.VERSION.SDK_INT >= 19) {
@@ -366,16 +402,6 @@ public class Blog extends Base {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.clear();
-        MenuInflater inflater = getSupportMenuInflater();
-        if(!API.loggedIn(this))
-            inflater.inflate(R.menu.blog_actions, menu);
-        else inflater.inflate(R.menu.blog_actions_loggedin, menu);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:
@@ -384,12 +410,6 @@ public class Blog extends Base {
                     drawerLayout.openDrawer(drawer);
                 else drawerLayout.closeDrawer(drawer);
                 break;
-            case R.id.action_login:
-                new LoginDialog(this).show(getSupportFragmentManager(), "LgnDg");
-                return true;
-            case R.id.action_logout:
-                new ConfirmLogoutDialog(this).show(getSupportFragmentManager(), "LgtCnfrmDg");
-                return true;
         }
         return super.onOptionsItemSelected(item);
     }

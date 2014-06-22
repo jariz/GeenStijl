@@ -104,7 +104,7 @@ public class ReplyDialog extends DialogFragment {
                                     @Override
                                     public void run() {
                                         alertDialog.dismiss();
-                                        Crouton.makeText(activity, getString(R.string.reply_success), Style.CONFIRM, R.id.ptr_layout).show();
+                                        Crouton.makeText(activity, getString(R.string.reply_success), Style.CONFIRM).show();
                                     }
                                 });
                             }

@@ -19,6 +19,7 @@ package io.jari.geenstijl.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,6 +28,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
@@ -37,6 +39,7 @@ import android.view.WindowManager;
 import android.widget.*;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Article;
+import io.jari.geenstijl.Browser;
 import io.jari.geenstijl.R;
 import org.w3c.dom.Text;
 
@@ -56,6 +59,7 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
         this.context = context;
     }
 
+    static SharedPreferences preferences;
     Activity context;
     ArrayList<Artikel> artikelen;
 
@@ -98,10 +102,12 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
     }
 
     public static View fillView(View item, final Artikel artikel, final Context context, Boolean readmore_enabled) {
+        if(preferences == null) preferences = PreferenceManager.getDefaultSharedPreferences(context);
         ((TextView) item.findViewById(R.id.title)).setText(artikel.titel);
         TextView desc = (TextView) item.findViewById(R.id.desc);
         TextView footer = (TextView) item.findViewById(R.id.footer);
 
+        desc.setTextSize(preferences.getInt("textsize", 14));
         desc.setText(Html.fromHtml(artikel.inhoud));
         desc.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -143,14 +149,15 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
             embed.setVisibility(View.VISIBLE);
             embed.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
+//                    Intent i = new Intent(Intent.ACTION_VIEW);
 
                     //bugfix
                     if(artikel.embed.startsWith("://")) artikel.embed = "http"+artikel.embed;
                     if(artikel.embed.startsWith("//")) artikel.embed = "http:"+artikel.embed;
 
-                    i.setData(Uri.parse(artikel.embed));
-                    context.startActivity(i);
+//                    i.setData(Uri.parse(artikel.embed));
+//                    context.startActivity(i);
+                    context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(artikel.embed), context, Browser.class));
                 }
             });
         }

@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import io.jari.geenstijl.API.API;
+import io.jari.geenstijl.Blog;
 import io.jari.geenstijl.R;
 
 /**
@@ -39,11 +40,11 @@ import io.jari.geenstijl.R;
  */
 public class ConfirmLogoutDialog extends DialogFragment {
 
-    public ConfirmLogoutDialog(Activity activity) {
+    public ConfirmLogoutDialog(Blog activity) {
         this.activity = activity;
     }
 
-    final Activity activity;
+    final Blog activity;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -56,7 +57,6 @@ public class ConfirmLogoutDialog extends DialogFragment {
                 .setInverseBackgroundForced(true)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
                     public void onClick(DialogInterface dialog, int which) {
                         API.logOut(activity);
                         forceOptionsReload();
@@ -74,9 +74,8 @@ public class ConfirmLogoutDialog extends DialogFragment {
 
     void forceOptionsReload() {
         activity.runOnUiThread(new Runnable() {
-            @Override
             public void run() {
-                activity.invalidateOptionsMenu();
+                activity.reloadDrawer();
             }
         });
     }

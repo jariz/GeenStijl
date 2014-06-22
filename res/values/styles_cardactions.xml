@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Geenstijl.Card.Action" parent="@android:style/Widget.Button">
+        <item name="android:cacheColorHint">@color/geenstijl</item>
+        <item name="android:background">@drawable/action_bg</item>
+        <item name="android:textColor">@color/blog_item_action_label_color</item>
+        <item name="android:gravity">left</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:textAppearance">@android:style/TextAppearance</item>
+    </style>
+</resources>

@@ -79,7 +79,7 @@ public class CommentDialog extends DialogFragment {
                                 if (!API.vote(artikel, comment, direction))
                                     activity.runOnUiThread(new Runnable() {
                                         public void run() {
-                                            Crouton.makeText(activity, activity.getString(R.string.vote_fail, direction), Style.ALERT, R.id.show).show();
+                                            Crouton.makeText(activity, activity.getString(R.string.vote_fail, direction), Style.ALERT).show();
                                         }
                                     });
                             }

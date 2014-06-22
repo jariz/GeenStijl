@@ -18,6 +18,7 @@ package io.jari.geenstijl.API;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import org.apache.http.HttpRequest;
 import org.apache.http.NameValuePair;
@@ -81,7 +82,7 @@ public class API {
         Elements artikelen = document.select("#content>article");
         ArrayList<Artikel> resultaat = new ArrayList<Artikel>();
         for (Element artikel_el : artikelen) {
-            Artikel artikel = parseArtikel(artikel_el);
+            Artikel artikel = parseArtikel(artikel_el, context);
 
             resultaat.add(artikel);
         }
@@ -124,7 +125,7 @@ public class API {
     }
 
     static String domain;
-    private static Artikel parseArtikel(Element artikel_el) throws ParseException {
+    private static Artikel parseArtikel(Element artikel_el, Context context) throws ParseException {
         Artikel artikel = new Artikel();
 
         //id
@@ -137,22 +138,24 @@ public class API {
         artikel.titel = artikel_el.select("h1").text();
 
         //plaatje
-        Element plaatje = artikel_el.select("img").first();
-        if (plaatje != null) {
-            try {
-                String url = plaatje.attr("src");
-                Log.d(TAG, "Downloading " + url);
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("show_images", true)) {
+            Element plaatje = artikel_el.select("img").first();
+            if (plaatje != null) {
+                try {
+                    String url = plaatje.attr("src");
+                    Log.d(TAG, "Downloading " + url);
 //                    artikel.plaatje = Drawable.createFromStream(((java.io.InputStream)new URL(plaatje.attr("src")).getContent()), null);
-                artikel.plaatje = readBytes((InputStream) new URL(plaatje.attr("src")).getContent());
-                artikel.groot_plaatje = plaatje.hasClass("groot");
-                if(plaatje.hasAttr("width") && plaatje.hasAttr("height"))
-                    if (!plaatje.attr("width").equals("100") || !plaatje.attr("height").equals("100"))
-                        artikel.groot_plaatje = true;
-                if (artikel.groot_plaatje) Log.i(TAG, "    Done. Big image.");
-                else Log.i(TAG, "    Done.");
-            } catch (Exception ex) {
-                Log.w(TAG, "Unable to download image, Falling back... Reason: " + ex.getMessage());
-                artikel.plaatje = null;
+                    artikel.plaatje = readBytes((InputStream) new URL(plaatje.attr("src")).getContent());
+                    artikel.groot_plaatje = plaatje.hasClass("groot");
+                    if (plaatje.hasAttr("width") && plaatje.hasAttr("height"))
+                        if (!plaatje.attr("width").equals("100") || !plaatje.attr("height").equals("100"))
+                            artikel.groot_plaatje = true;
+                    if (artikel.groot_plaatje) Log.i(TAG, "    Done. Big image.");
+                    else Log.i(TAG, "    Done.");
+                } catch (Exception ex) {
+                    Log.w(TAG, "Unable to download image, Falling back... Reason: " + ex.getMessage());
+                    artikel.plaatje = null;
+                }
             }
         }
 
@@ -219,7 +222,7 @@ public class API {
         Log.i(TAG, "GETARTICLE STEP 1/2: Getting/parsing article page & images... " + url);
         Document document = Jsoup.connect(url).get();
         Element artikel_el = document.select("#content>article").first();
-        artikel = parseArtikel(artikel_el);
+        artikel = parseArtikel(artikel_el, context);
 
         Log.i(TAG, "GETARTICLE STEP 2/2: Parsing comments...");
         ArrayList<Comment> comments = new ArrayList<Comment>();
@@ -296,15 +299,17 @@ public class API {
                     return false;
                 }
 
-                USERNAME = commenter_name;
                 String cheader = String.format("commenter_name=%s; tk_commenter=%s;", commenter_name, tk_commenter);
                 Log.d(TAG, "Login completed, debug data:\ncookieheader: " + cheader);
+                context.getSharedPreferences("geenstijl", 0).edit().putString("username", commenter_name).commit();
                 setSession(cheader, context);
                 return true;
         }
     }
 
-    public static String USERNAME = "";
+    public static String getUsername(Context context) {
+        return context.getSharedPreferences("geenstijl", 0).getString("username", "???");
+    }
 
     public static void logOut(Context context) {
         setSession("", context);

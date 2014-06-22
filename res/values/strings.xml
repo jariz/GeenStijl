@@ -30,8 +30,27 @@
     <string name="changelog_title">New version!</string>
     <string name="sectionheader_site">SITE</string>
     <string name="sectionheader_account">ACCOUNT</string>
+    <string name="sectionheader_app">APP</string>
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>
+
+    <string name="lnterface">Interface</string>
+    <string name="network">Network</string>
+    <string name="hide_actionbar">Hide actionbar</string>
+    <string name="hide_actionbar_expl">Hide the actionbar when scrolling down.</string>
+    <string name="show_images">Show images</string>
+    <string name="show_images_expl">Disabling this may help increasing loading time and decreasing data usage</string>
+    <string name="textsize">Text size</string>
+    <string name="textsize_expl">Change the text size of articles</string>
+
+    <string name="about_desc">GeenStijl reader is gratis opensource software. Dit betekent dat de broncode door iedereen te bekijken is en aan te passen. Voor meer informatie zie de <a href='https://github.com/jariz/GeenStijl'>project pagina op GitHub.</a></string>
+    <string name="about_jariz">JariZ</string>
+    <string name="about_createdby">Created by:</string>
+    <string name="about_version">Version\u0020</string>
+    <string name="about_reader">GeenStijl Reader</string>
+
+    <string name="options">Settings</string>
+    <string name="about">About</string>
 
     <string name="ago">\u0020ago</string>
     <string name="year">year</string>

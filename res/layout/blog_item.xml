@@ -30,8 +30,8 @@
             <com.devspark.robototextview.widget.RobotoTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="25sp"
                     android:text="Titel"
+                    android:textSize="25sp"
                     app:typeface="roboto_italic"
                     android:textColor="#333"
                     android:id="@+id/title"

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:paddingLeft="20dp"
+              android:paddingRight="20dp"
+              android:paddingTop="40dp"
+              android:paddingBottom="40dp">
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp">
+
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView"
+                android:src="@drawable/icon_about"
+                android:layout_marginRight="10dp"/>
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+
+            <view
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    class="com.devspark.robototextview.widget.RobotoTextView"
+                    android:id="@+id/view"
+                    android:textSize="25sp"
+                    android:text="@string/about_reader"
+                    app:typeface="roboto_condensed_bold"
+                    android:textColor="#333"
+                    android:layout_gravity="center"/>
+
+            <view
+                    class="com.devspark.robototextview.widget.RobotoTextView"
+                    app:typeface="roboto_light_italic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/about_version"
+                    android:textSize="15sp"
+                    android:text=""
+                    android:textColor="#333"
+                    android:layout_gravity="center_horizontal"
+                    />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <view
+            class="com.devspark.robototextview.widget.RobotoTextView"
+            app:typeface="roboto_condensed_regular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/about_createdby"
+            android:textColor="#333"
+            />
+
+    <view
+            class="com.devspark.robototextview.widget.RobotoTextView"
+            app:typeface="roboto_light_italic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/about_jariz"
+            android:textColor="#333"/>
+
+    <view
+            class="com.devspark.robototextview.widget.RobotoTextView"
+            app:typeface="roboto_condensed_regular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/about_desc"
+            android:textSize="15sp"
+            android:text="@string/about_desc"
+            android:textColor="#333"
+            android:layout_marginTop="20dp"
+            android:linksClickable="true"/>
+</LinearLayout>

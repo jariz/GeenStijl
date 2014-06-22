@@ -121,10 +121,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/sectionheader_account"
-                style="@style/GeenStijl.sectionHeader"/>
+                style="@style/GeenStijl.sectionHeader"
+                android:id="@+id/sectionheader_account"/>
 
         <ListView
                 android:id="@+id/login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="0dp"
+                android:background="#ffebebeb"/>
+
+        <TextView
+                style="@style/GeenStijl.sectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sectionheader_app"
+                android:id="@+id/textView"/>
+
+        <ListView
+                android:id="@+id/applist"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"

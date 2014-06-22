@@ -32,6 +32,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import io.jari.geenstijl.API.API;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.API.Comment;
+import io.jari.geenstijl.Blog;
 import io.jari.geenstijl.R;
 import org.w3c.dom.Text;
 
@@ -45,11 +46,11 @@ import java.io.IOException;
  */
 public class LoginDialog extends DialogFragment {
 
-    public LoginDialog(Activity activity) {
+    public LoginDialog(Blog activity) {
         this.activity = activity;
     }
 
-    final Activity activity;
+    final Blog activity;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -78,7 +79,6 @@ public class LoginDialog extends DialogFragment {
                 final Button positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 final Button negative = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
                 positive.setOnClickListener(new View.OnClickListener() {
-                    @Override
                     public void onClick(View v) {
                         positive.setEnabled(false);
                         negative.setEnabled(false);
@@ -91,7 +91,6 @@ public class LoginDialog extends DialogFragment {
                         error.setVisibility(View.GONE);
                         alertDialog.setCancelable(false);
                         new Thread(new Runnable() {
-                            @Override
                             public void run() {
                                 boolean success;
                                 try {
@@ -102,7 +101,6 @@ public class LoginDialog extends DialogFragment {
                                 }
                                 alertDialog.setCancelable(true);
                                 if(!success) activity.runOnUiThread(new Runnable() {
-                                    @Override
                                     public void run() {
                                         username.setVisibility(View.VISIBLE);
                                         password.setVisibility(View.VISIBLE);
@@ -113,11 +111,10 @@ public class LoginDialog extends DialogFragment {
                                     }
                                 });
                                 else activity.runOnUiThread(new Runnable() {
-                                    @Override
                                     public void run() {
                                         alertDialog.dismiss();
                                         forceOptionsReload();
-                                        Crouton.makeText(activity, getString(R.string.loggedin, API.USERNAME), Style.CONFIRM, R.id.ptr_layout).show();
+                                        Crouton.makeText(activity, getString(R.string.loggedin, API.getUsername(activity)), Style.CONFIRM).show();
                                     }
                                 });
                             }
@@ -132,9 +129,8 @@ public class LoginDialog extends DialogFragment {
 
     void forceOptionsReload() {
         activity.runOnUiThread(new Runnable() {
-            @Override
             public void run() {
-                activity.invalidateOptionsMenu();
+                activity.reloadDrawer();
             }
         });
     }
