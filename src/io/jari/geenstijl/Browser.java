@@ -1,8 +1,10 @@
 package io.jari.geenstijl;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -23,9 +25,12 @@ public class Browser extends SherlockFragmentActivity {
     String currentURL;
     SystemBarTintManager tintManager;
 
+    @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.browser);
+
+        final SmoothProgressBar smoothProgressBar = (SmoothProgressBar)findViewById(R.id.smoothProgressBar);
 
         //are you #bebebe?
         if(Build.VERSION.SDK_INT >= 19) {
@@ -36,12 +41,16 @@ public class Browser extends SherlockFragmentActivity {
             ViewGroup.LayoutParams params = findViewById(R.id.browserLAYOUT).getLayoutParams();
             SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
             ((ViewGroup.MarginLayoutParams) params).topMargin = config.getPixelInsetTop(true);
+            smoothProgressBar.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
         }
 
         getSupportActionBar().setIcon(R.drawable.icon);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        final SmoothProgressBar smoothProgressBar = (SmoothProgressBar)findViewById(R.id.smoothProgressBar);
 
         if (Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null) {
             String url = getIntent().getData().toString();

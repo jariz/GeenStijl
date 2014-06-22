@@ -10,7 +10,7 @@ apply plugin: 'android'
 
 repositories {
     flatDir {
-        dirs 'libs-18', 'libs'
+        dirs 'libs'
     }
 }
 
