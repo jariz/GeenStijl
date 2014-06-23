@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog bulletedList="true">
-    <changelogversion versionName="0.5" changeDate="?? Mei, 2014">
+    <changelogversion versionName="0.5" changeDate="23 Juni, 2014">
         <changelogtext>[b]Nieuw:[/b] Changelog dialoog</changelogtext>
         <changelogtext>[b]Nieuw:[/b] Sliding menu</changelogtext>
         <changelogtext>[b]Nieuw:[/b] Support voor GeenStijl.TV</changelogtext>
         <changelogtext>[b]Nieuw:[/b] Opties</changelogtext>
         <changelogtext>[b]Nieuw:[/b] Lettergrootte veranderen</changelogtext>
-        <changelogtext>[b]Nieuw:[/b] Immersive mode voor 4.4+</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Actionbar verbergen + Immersive mode voor 4.4+</changelogtext>
+        <changelogtext>[b]Nieuw:[/b] Interne webbrowser</changelogtext>
         <changelogtext>Inloggen verplaatst naar sliding menu</changelogtext>
         <changelogtext>Punten verwijderd aangezien GeenStijl dit niet meer heeft.</changelogtext>
     </changelogversion>
