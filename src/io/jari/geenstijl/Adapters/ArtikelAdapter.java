@@ -40,6 +40,7 @@ import android.widget.*;
 import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.Article;
 import io.jari.geenstijl.Browser;
+import io.jari.geenstijl.InternalBrowserMovementMethod;
 import io.jari.geenstijl.R;
 import org.w3c.dom.Text;
 
@@ -109,7 +110,9 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
 
         desc.setTextSize(preferences.getInt("textsize", 14));
         desc.setText(Html.fromHtml(artikel.inhoud));
-        desc.setMovementMethod(LinkMovementMethod.getInstance());
+        if(!internalBrowser(context))
+            desc.setMovementMethod(LinkMovementMethod.getInstance());
+        else desc.setMovementMethod(new InternalBrowserMovementMethod());
 
         footer.setText(String.format("%s | %s | %s reacties", artikel.auteur, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(artikel.datum), artikel.reacties));
 
@@ -149,15 +152,18 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
             embed.setVisibility(View.VISIBLE);
             embed.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-//                    Intent i = new Intent(Intent.ACTION_VIEW);
-
                     //bugfix
-                    if(artikel.embed.startsWith("://")) artikel.embed = "http"+artikel.embed;
-                    if(artikel.embed.startsWith("//")) artikel.embed = "http:"+artikel.embed;
+                    if (artikel.embed.startsWith("://")) artikel.embed = "http" + artikel.embed;
+                    if (artikel.embed.startsWith("//")) artikel.embed = "http:" + artikel.embed;
 
-//                    i.setData(Uri.parse(artikel.embed));
-//                    context.startActivity(i);
-                    context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(artikel.embed), context, Browser.class));
+                    if (internalBrowser(context)) {
+                        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(artikel.embed), context, Browser.class));
+                    } else {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(artikel.embed));
+                        context.startActivity(i);
+                    }
+
                 }
             });
         }
@@ -174,5 +180,9 @@ public class ArtikelAdapter extends ArrayAdapter<Artikel> implements ListAdapter
             });
 
         return item;
+    }
+
+    static boolean internalBrowser(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("open_internal_browser", true);
     }
 }

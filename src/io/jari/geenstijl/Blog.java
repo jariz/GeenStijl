@@ -317,8 +317,6 @@ public class Blog extends Base {
 
                 //#HOLOYOLO
                 if(Build.VERSION.SDK_INT >= 19) {
-                    ViewGroup.LayoutParams params = show.getLayoutParams();
-                    //jariz's home made actionbar hack!
                     SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
                     show.setPadding(0, showTopPadding + config.getPixelInsetTop(true), 0, 0);
                 }

@@ -1,9 +1,10 @@
+//dependencies etc config
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.9.+'
     }
 }
 apply plugin: 'android'
@@ -31,6 +32,7 @@ dependencies {
     compile 'de.keyboardsurfer.android.widget:crouton:1.8.4'
 }
 
+//project structure config
 android {
     sourceSets {
         main {
@@ -46,7 +48,33 @@ android {
     }
 }
 
+//android target config
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.0"
+}
+
+//signing config
+android {
+    signingConfigs {
+        release {
+            storeFile file("android-key.jks")
+            storePassword ""
+            keyAlias ""
+            keyPassword ""
+        }
+    }
+
+    buildTypes {
+        release {
+            debuggable true
+            jniDebugBuild true
+            signingConfig signingConfigs.release
+        }
+    }
+
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
 }

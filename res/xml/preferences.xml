@@ -1,25 +1,32 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:picker="http://schemas.android.com/apk/res-auto">
+    xmlns:picker="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
-            android:title="@string/lnterface"
-            android:key="interface">
-    <CheckBoxPreference
+        android:title="@string/lnterface"
+        android:key="interface">
+        <com.michaelnovakjr.numberpicker.NumberPickerPreference
+            android:key="textsize"
+            android:title="@string/textsize"
+            android:summary="@string/textsize_expl"
+            picker:defaultValue="14"
+            picker:startRange="10"
+            picker:endRange="20" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/behavior">
+        <CheckBoxPreference
+            android:key="open_internal_browser"
+            android:title="@string/open_internal_browser"
+            android:summary="@string/open_internal_browser_expl"
+            android:defaultValue="true" />
+        <CheckBoxPreference
             android:key="hide_actionbar"
             android:title="@string/hide_actionbar"
             android:summary="@string/hide_actionbar_expl"
             android:defaultValue="true" />
-        <com.michaelnovakjr.numberpicker.NumberPickerPreference
-                android:key="textsize"
-                android:title="@string/textsize"
-                android:summary="@string/textsize_expl"
-                picker:defaultValue="14"
-                picker:startRange="10"
-                picker:endRange="20"/>
     </PreferenceCategory>
     <PreferenceCategory
-            android:title="@string/network"
-            android:key="network">
-    <CheckBoxPreference
+        android:title="@string/network"
+        android:key="network">
+        <CheckBoxPreference
             android:key="show_images"
             android:title="@string/show_images"
             android:summary="@string/show_images_expl"

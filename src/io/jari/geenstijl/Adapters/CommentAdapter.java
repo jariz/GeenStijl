@@ -17,10 +17,12 @@
 package io.jari.geenstijl.Adapters;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -31,6 +33,7 @@ import io.jari.geenstijl.API.Artikel;
 import io.jari.geenstijl.API.Comment;
 import io.jari.geenstijl.API.RRTime;
 import io.jari.geenstijl.Article;
+import io.jari.geenstijl.InternalBrowserMovementMethod;
 import io.jari.geenstijl.R;
 
 import java.util.Date;
@@ -65,8 +68,15 @@ public class CommentAdapter extends ArrayAdapter<Comment> implements ListAdapter
         ((TextView)item.findViewById(R.id.timespan)).setText(RRTime.formatDurationMs(new Date().getTime() - comment.datum.getTime(), context) + context.getResources().getString(R.string.ago));
         TextView cntnt = ((TextView)item.findViewById(R.id.content));
         cntnt.setText(Html.fromHtml(comment.inhoud));
-        cntnt.setMovementMethod(LinkMovementMethod.getInstance());
+        cntnt.setTextSize(PreferenceManager.getDefaultSharedPreferences(context).getInt("textsize", 14));
+        if(!internalBrowser(context))
+            cntnt.setMovementMethod(LinkMovementMethod.getInstance());
+        else cntnt.setMovementMethod(new InternalBrowserMovementMethod());
 
         return item;
+    }
+
+    static boolean internalBrowser(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("open_internal_browser", true);
     }
 }

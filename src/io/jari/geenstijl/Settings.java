@@ -35,7 +35,7 @@ public class Settings extends SherlockPreferenceActivity {
 
         getSupportActionBar().setIcon(R.drawable.icon);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        getSupportActionBar().setTitle(getResources().getString(R.string.options));
     }
 
     @Override

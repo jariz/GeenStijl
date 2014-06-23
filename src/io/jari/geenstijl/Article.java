@@ -16,11 +16,14 @@
 
 package io.jari.geenstijl;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
@@ -50,6 +53,9 @@ public class Article extends Base {
     Artikel currentArtikel = null;
     String currentURL = null;
 
+    boolean forceNoImmersive = false;
+    ActionBar actionBar;
+
     public void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.article);
 
@@ -57,15 +63,6 @@ public class Article extends Base {
 
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
-
-        //#HOLOYOLO
-        if (Build.VERSION.SDK_INT >= 19) {
-            SystemBarTintManager tintManager = new SystemBarTintManager(this);
-            ViewGroup.LayoutParams params = findViewById(R.id.ptr_layout).getLayoutParams();
-            //jariz's home made actionbar hack!
-            SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
-            ((ViewGroup.MarginLayoutParams) params).topMargin = config.getPixelInsetTop(true);
-        }
 
         new Thread(new Runnable() {
             public void run() {
@@ -94,6 +91,9 @@ public class Article extends Base {
 
     View header;
 
+
+    int showTopPadding = 0;
+
     void initUI(final Artikel artikel) {
         runOnUiThread(new Runnable() {
             public void run() {
@@ -116,7 +116,7 @@ public class Article extends Base {
 ////                                    header.getLayoutParams().height = Math.round(bitmap.getMinimumHeight() * ratio);
 //                                }
 
-                ListView comments = (ListView) findViewById(R.id.show);
+                final ListView comments = (ListView) findViewById(R.id.show);
 
                 if(Article.this.header != null)
                     comments.removeHeaderView(Article.this.header);
@@ -132,6 +132,38 @@ public class Article extends Base {
                 comments.addHeaderView(header);
 
                 comments.setAdapter(new CommentAdapter(Article.this, 0, artikel.comments));
+
+                if(showTopPadding == 0) showTopPadding = comments.getPaddingTop();
+                comments.setScrollingCacheEnabled(false);
+
+                //#HOLOYOLO
+                if(Build.VERSION.SDK_INT >= 19) {
+                    SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+                    comments.setPadding(0, showTopPadding + config.getPixelInsetTop(true), 0, 0);
+                }
+
+                //hiding the actionbar when scrolling
+                actionBar = getSupportActionBar();
+                comments.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    int mLastFirstVisibleItem = 0;
+
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    }
+
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        if (view.getId() == comments.getId()) {
+                            final int currentFirstVisibleItem = comments.getFirstVisiblePosition();
+
+                            if (currentFirstVisibleItem > mLastFirstVisibleItem && actionBar.isShowing()) {
+                                enableImmersive(true, comments);
+                            } else if (currentFirstVisibleItem < mLastFirstVisibleItem && !actionBar.isShowing()) {
+                                enableImmersive(false, comments);
+                            }
+
+                            mLastFirstVisibleItem = currentFirstVisibleItem;
+                        }
+                    }
+                });
 
 //                comments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -215,5 +247,33 @@ public class Article extends Base {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressLint("NewApi")
+    void enableImmersive(boolean immersive, View view) {
+        if(!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hide_actionbar", true)) return;
+
+        if(immersive && !forceNoImmersive) {
+            if(Build.VERSION.SDK_INT >= 19) {
+                tintManager.setStatusBarAlpha(0.5f);
+                view.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE);
+            }
+            actionBar.hide();
+        } else {
+            if(Build.VERSION.SDK_INT >= 19) {
+                tintManager.setStatusBarAlpha(1f);
+                view.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            }
+
+            actionBar.show();
+        }
     }
 }

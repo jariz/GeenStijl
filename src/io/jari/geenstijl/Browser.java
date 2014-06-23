@@ -2,6 +2,7 @@ package io.jari.geenstijl;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
@@ -31,6 +33,7 @@ public class Browser extends SherlockFragmentActivity {
         setContentView(R.layout.browser);
 
         final SmoothProgressBar smoothProgressBar = (SmoothProgressBar)findViewById(R.id.smoothProgressBar);
+        smoothProgressBar.progressiveStop();
 
         //are you #bebebe?
         if(Build.VERSION.SDK_INT >= 19) {
@@ -64,11 +67,29 @@ public class Browser extends SherlockFragmentActivity {
 
             webView.setWebViewClient(new WebViewClient(){
                 @Override
+                public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                    getSupportActionBar().setTitle(R.string.app_name);
+                    smoothProgressBar.progressiveStart();
+                }
+
+                @Override
                 public void onPageFinished(WebView view, String url) {
+                    getSupportActionBar().setTitle(view.getTitle());
                     smoothProgressBar.progressiveStop();
                 }
             });
 
         } else throw new InvalidParameterException("No URL provided for the browser to open");
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED);
+                finish();
+                return true;
+            default:
+                return false;
+        }
     }
 }

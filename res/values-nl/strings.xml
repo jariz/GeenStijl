@@ -42,6 +42,9 @@
     <string name="show_images_expl">Als je dit uitschakelt, bespaar je data verbruik en versnel je (mogelijk) laadtijden.</string>
     <string name="textsize">Tekstgrootte</string>
     <string name="textsize_expl">Verander de tekst grootte</string>
+    <string name="behavior">Gedrag</string>
+    <string name="open_internal_browser">Ingebouwde webbrowser</string>
+    <string name="open_internal_browser_expl">Links openen in de ingebouwde webbrowser is sneller en zorgt ervoor dat de app niet crashed als er geen browser geinstalleerd is op de telefoon.</string>
 
     <string name="about_desc">GeenStijl reader is gratis opensource software. Dit betekent dat de broncode door iedereen te bekijken is en aan te passen. Voor meer informatie zie de <a href='https://github.com/jariz/GeenStijl'>project pagina op GitHub.</a></string>
     <string name="about_jariz">JariZ</string>
